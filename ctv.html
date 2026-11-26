@@ -177,7 +177,6 @@
         <div class="flex items-center justify-between gap-2 border-b border-zinc-800 pb-4">
           <div class="min-w-0">
             <h2 class="text-base sm:text-lg font-black text-white">Kích hoạt Locket Gold cho khách</h2>
-            <p class="text-xs text-zinc-400">Kết nối trực tiếp API uplocket.io.vn · Trả link DNS riêng ngay lập tức</p>
           </div>
           <span class="shrink-0 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold uppercase">Auto 24/7</span>
         </div>
@@ -553,7 +552,7 @@
   }
 
   async function loadPackages() {
-    $('packages-status').textContent = 'Đang tải danh sách gói từ uplocket.io.vn...';
+    $('packages-status').textContent = 'Đang tải danh sách gói...';
     try {
       const data = await apiFetch('/api/locket?action=catalog', null, false);
       packages = Array.isArray(data.packages) ? data.packages : [];
@@ -633,7 +632,7 @@
 
     const btn = $('activate-btn');
     btn.disabled = true;
-    $('activate-status').textContent = 'Đang trừ ví CTV và kích hoạt trên uplocket.io.vn...';
+    $('activate-status').textContent = 'Đang trừ ví CTV và kích hoạt Locket Gold...';
     $('result-box').classList.add('hidden');
 
     try {
