@@ -47,7 +47,7 @@ function verifySepayHmac(req, rawBody) {
     req.headers['x-signature'] ||
     '';
 
-  if (timingSafeSigMatch(secret, rawBody, sigHeader)) return true;
+  if (sigHeader && timingSafeSigMatch(secret, rawBody, sigHeader)) return true;
 
   const auth = String(req.headers.authorization || '').trim();
   const bearer = auth.replace(/^(Bearer|Apikey|Api-Key)\s+/i, '').trim();
@@ -59,7 +59,13 @@ function verifySepayHmac(req, rawBody) {
     return true;
   }
 
-  throw error('Chữ ký HMAC-SHA256 không hợp lệ.', 401);
+  if (!sigHeader && !candidateKey) {
+    throw error('Thiếu header xác thực từ SePay. Hãy chọn kiểu chứng thực API Key trong cài đặt Webhook SePay.', 401);
+  }
+  if (candidateKey) {
+    throw error('API Key từ SePay không khớp biến SEPAY_LIVE_WEBHOOK_SECRET trên Vercel.', 401);
+  }
+  throw error('Chữ ký HMAC-SHA256 không khớp. Hãy đổi kiểu chứng thực trên SePay sang API Key.', 401);
 }
 
 function extractCtvUsernameCandidates(content) {
