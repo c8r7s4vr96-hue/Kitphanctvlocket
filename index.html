@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#FFFBF1">
 <title>Locket KitPhan CTV · Chỉ từ 15.000đ/tháng</title>
 <meta name="description" content="Nâng cấp Locket Gold: quay video dài, đăng ảnh riêng tư, thay logo, thay nền, thêm bạn bè, viết caption dài. Chỉ từ 15.000đ/tháng, liên hệ Zalo 0397 867 242.">
@@ -28,7 +28,8 @@
     #ctv-activate-section *{box-sizing:border-box}
     .kp-wrap{max-width:860px;margin:0 auto;background:linear-gradient(160deg,rgba(24,24,27,.96),rgba(9,9,11,.98));border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.45)}
     .kp-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-bottom:16px;border-bottom:1px solid #27272a;margin-bottom:20px}
-    .kp-btn{cursor:pointer;border:0;border-radius:12px;padding:10px 16px;font:800 12px/1.2 'Nunito',system-ui,sans-serif;text-transform:uppercase;letter-spacing:.04em;transition:.15s}
+    .kp-top-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .kp-btn{cursor:pointer;border:0;border-radius:12px;padding:10px 16px;font:800 12px/1.2 'Nunito',system-ui,sans-serif;text-transform:uppercase;letter-spacing:.04em;transition:.15s;touch-action:manipulation}
     .kp-btn-white{background:#fff;color:#09090b}.kp-btn-white:hover{background:#e4e4e7}
     .kp-btn-gold{background:#FFB000;color:#18181b}.kp-btn-gold:hover{background:#ffc033}
     .kp-btn-dark{background:#18181b;color:#e4e4e7;border:1px solid #3f3f46}.kp-btn-dark:hover{border-color:#fff}
@@ -36,10 +37,10 @@
     .kp-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
     .kp-step-pill{background:#111114;border:1px solid #27272a;border-radius:12px;padding:10px;text-align:center;font-size:11px;font-weight:800;text-transform:uppercase;color:#a1a1aa}
     .kp-step-pill b{color:#71717a;margin-right:4px}
-    .kp-input{width:100%;padding:12px 14px;border-radius:12px;background:#09090b;border:1px solid #3f3f46;color:#fff;font:600 14px 'Nunito',system-ui,sans-serif;outline:none}
+    .kp-input{width:100%;padding:12px 14px;border-radius:12px;background:#09090b;border:1px solid #3f3f46;color:#fff;font:600 16px 'Nunito',system-ui,sans-serif;outline:none;touch-action:manipulation}
     .kp-input:focus{border-color:#fff}
     .kp-pkg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:10px}
-    .kp-pkg{text-align:left;padding:14px;border-radius:14px;background:#111114;border:1px solid #27272a;color:#fff;cursor:pointer;transition:.15s}
+    .kp-pkg{text-align:left;padding:14px;border-radius:14px;background:#111114;border:1px solid #27272a;color:#fff;cursor:pointer;transition:.15s;touch-action:manipulation}
     .kp-pkg:hover{border-color:#71717a}
     .kp-pkg.active{border-color:#FFB000;background:rgba(255,176,0,.09);box-shadow:0 0 0 1px rgba(255,176,0,.4)}
     .kp-pkg:disabled{opacity:.45;cursor:not-allowed}
@@ -48,8 +49,19 @@
     .kp-badge-time{background:#27272a;color:#d4d4d8}
     .kp-modal{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;padding:16px}
     .kp-modal.open{display:flex}
-    .kp-modal-card{width:100%;max-width:460px;background:#111114;border:1px solid #27272a;border-radius:20px;padding:22px;color:#fff;max-height:92vh;overflow-y:auto}
-    @media(max-width:640px){.kp-wrap{padding:16px}.kp-steps{font-size:10px}}
+    .kp-modal-card{width:100%;max-width:460px;background:#111114;border:1px solid #27272a;border-radius:20px;padding:22px;color:#fff;max-height:90dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    @media(max-width:640px){
+      #ctv-activate-section{padding:36px 12px!important}
+      .kp-wrap{padding:16px;border-radius:18px}
+      .kp-top-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
+      .kp-top-actions .kp-btn{text-align:center;min-height:42px;display:flex;align-items:center;justify-content:center}
+      .kp-steps{gap:6px;margin-bottom:16px}
+      .kp-step-pill{font-size:10px;padding:8px 4px}
+      #kp-locket-lookup-btn,#kp-activate-btn{width:100%;min-height:48px}
+      .kp-pkg-grid{grid-template-columns:1fr}
+      .kp-modal{padding:10px;align-items:flex-end}
+      .kp-modal-card{border-radius:20px 20px 14px 14px;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+    }
   </style>
   <div class="kp-wrap">
     <div class="kp-top">
@@ -57,7 +69,7 @@
         <div style="font-size:18px;font-weight:900;color:#fff;">👑 Cổng CTV Locket KitPhan</div>
         <div id="kp-ctv-bar-meta" style="font-size:12px;color:#a1a1aa;margin-top:2px;">Chưa đăng nhập tài khoản CTV</div>
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+      <div class="kp-top-actions">
         <button type="button" id="kp-open-login-btn" class="kp-btn kp-btn-dark" onclick="window.kpCtvOpenAuth('login')">Đăng nhập CTV</button>
         <button type="button" id="kp-open-reg-btn" class="kp-btn kp-btn-gold" onclick="window.kpCtvOpenAuth('register')">Đăng ký CTV</button>
         <button type="button" id="kp-open-deposit-btn" class="kp-btn kp-btn-gold" style="display:none" onclick="window.kpCtvOpenDeposit()">Nạp tiền (50k–1M)</button>
@@ -104,7 +116,7 @@
       <div id="kp-result-card" style="display:none;margin-top:14px;padding:16px;border-radius:14px;border:1px solid rgba(16,185,129,.45);background:rgba(6,78,59,.22);">
         <div style="font-weight:900;font-size:14px;color:#34d399;margin-bottom:6px;">✅ Kích hoạt Locket Gold thành công!</div>
         <div id="kp-res-info" style="font-size:12px;color:#e4e4e7;margin-bottom:10px;"></div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+        <div class="kp-top-actions">
           <code id="kp-res-dns" style="flex:1;min-width:200px;padding:10px;border-radius:10px;background:#09090b;border:1px solid #3f3f46;font-size:12px;color:#fff;word-break:break-all;"></code>
           <a id="kp-res-open" href="#" target="_blank" rel="noopener" class="kp-btn kp-btn-dark" style="text-decoration:none;">Tải DNS</a>
           <button type="button" id="kp-res-copy" class="kp-btn kp-btn-white">Sao chép</button>
@@ -117,7 +129,7 @@
     <div class="kp-modal-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
         <div id="kp-modal-title" style="font-size:16px;font-weight:900;">Tài khoản CTV KitPhan</div>
-        <button type="button" onclick="document.getElementById('kp-ctv-modal').classList.remove('open')" class="kp-btn kp-btn-dark" style="padding:6px 10px;">✕</button>
+        <button type="button" onclick="window.kpCtvCloseModal()" class="kp-btn kp-btn-dark" style="padding:6px 10px;">✕</button>
       </div>
       <div id="kp-modal-auth-tabs" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;">
         <button type="button" id="kp-m-tab-login" class="kp-btn kp-btn-gold" onclick="window.kpCtvOpenAuth('login')">Đăng nhập</button>
@@ -146,15 +158,22 @@
           <button type="button" class="kp-btn kp-btn-dark" onclick="window.kpSetDep(500000)">500k</button>
           <button type="button" class="kp-btn kp-btn-dark" style="grid-column:span 2" onclick="window.kpSetDep(1000000)">1.000.000đ</button>
         </div>
-        <input id="kp-m-dep-amt" class="kp-input" type="number" min="50000" max="1000000" step="10000" value="100000">
-        <div style="background:#fff;padding:10px;border-radius:14px;width:200px;margin:0 auto;">
+        <input id="kp-m-dep-amt" class="kp-input" type="number" inputmode="numeric" min="50000" max="1000000" step="10000" value="100000">
+        <div style="background:#fff;padding:10px;border-radius:14px;width:min(200px,60vw);margin:0 auto;">
           <img id="kp-m-qr" alt="QR MB Bank" style="width:100%;display:block;border-radius:8px;">
         </div>
-        <div style="font-size:12px;background:#09090b;border:1px solid #27272a;border-radius:12px;padding:10px;line-height:1.7;">
-          <div>Ngân hàng: <b>MB Bank</b> · STK: <b style="color:#FFB000">89123456789125</b></div>
-          <div>Nội dung CK: <b id="kp-m-dep-memo" style="color:#34d399">KITPHANCTV</b></div>
+        <div style="font-size:12px;background:#09090b;border:1px solid #27272a;border-radius:12px;padding:10px;line-height:1.8;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <span>Ngân hàng: <b>MB Bank</b></span>
+            <button type="button" id="kp-m-copy-stk" class="kp-btn kp-btn-dark" style="padding:4px 8px;font-size:11px;text-transform:none;">STK: <b style="color:#FFB000">89123456789125</b> 📋</button>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px;">
+            <span>Nội dung CK:</span>
+            <button type="button" id="kp-m-copy-memo" class="kp-btn kp-btn-dark" style="padding:4px 8px;font-size:11px;text-transform:none;"><b id="kp-m-dep-memo" style="color:#34d399">KITPHANCTV</b> 📋</button>
+          </div>
         </div>
-        <button type="button" id="kp-m-refresh-bal" class="kp-btn kp-btn-white" style="min-height:40px;">Kiểm tra số dư</button>
+        <button type="button" id="kp-m-refresh-bal" class="kp-btn kp-btn-white" style="min-height:42px;">Kiểm tra số dư</button>
+        <div style="font-size:11px;color:#34d399;text-align:center;">Đang tự động kiểm tra giao dịch mỗi 4 giây...</div>
       </div>
       <p id="kp-m-msg" style="font-size:12px;color:#fbbf24;margin:10px 0 0;"></p>
     </div>
@@ -175,8 +194,52 @@
   });
   const auth = firebase.auth();
   const $ = (id) => document.getElementById(id);
-  let profile = null, pkgs = [], selectedPkg = null, regBusy = false;
+  let profile = null, pkgs = [], selectedPkg = null, regBusy = false, depPollTimer = null, lastKnownBal = null;
   let walletMeta = { accountNumber: '89123456789125', transferContent: 'KITPHANCTV', minDepositVnd: 50000, maxDepositVnd: 1000000 };
+
+  function copyStr(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+    }
+    return fallbackCopy(text);
+  }
+  function fallbackCopy(text) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    } catch {}
+    return Promise.resolve();
+  }
+
+  function stopDepPoll() {
+    if (depPollTimer) { clearInterval(depPollTimer); depPollTimer = null; }
+  }
+  async function pollDepOnce() {
+    if (!auth.currentUser || !profile || document.visibilityState !== 'visible') return;
+    try {
+      const w = await api('/api/wallet');
+      walletMeta = w;
+      const bal = Number(w.availableVnd || 0);
+      if (lastKnownBal !== null && bal > lastKnownBal) {
+        const diff = bal - lastKnownBal;
+        $('kp-m-msg').style.color = '#34d399';
+        $('kp-m-msg').textContent = `Nạp tiền thành công! +${diff.toLocaleString('vi-VN')}đ đã được cộng vào ví.`;
+      }
+      lastKnownBal = bal;
+      profile.balance = bal;
+      $('kp-ctv-bar-meta').textContent = `@${profile.username} · Số dư: ${bal.toLocaleString('vi-VN')}đ`;
+    } catch {}
+  }
+  window.kpCtvCloseModal = () => {
+    stopDepPoll();
+    $('kp-ctv-modal').classList.remove('open');
+  };
 
   async function api(url, body = null, withAuth = true) {
     const headers = { 'Content-Type': 'application/json' };
@@ -191,6 +254,8 @@
   }
 
   window.kpCtvOpenAuth = (mode = 'login') => {
+    stopDepPoll();
+    $('kp-m-msg').style.color = '#fbbf24';
     $('kp-m-msg').textContent = '';
     $('kp-modal-title').textContent = 'Tài khoản CTV KitPhan';
     $('kp-modal-auth-tabs').style.display = 'grid';
@@ -204,6 +269,7 @@
 
   window.kpCtvOpenDeposit = () => {
     if (!profile) return window.kpCtvOpenAuth('login');
+    $('kp-m-msg').style.color = '#fbbf24';
     $('kp-m-msg').textContent = '';
     $('kp-modal-title').textContent = 'Nạp tiền ví CTV';
     $('kp-modal-auth-tabs').style.display = 'none';
@@ -212,6 +278,9 @@
     $('kp-m-deposit-box').style.display = 'flex';
     window.kpSetDep(Number($('kp-m-dep-amt').value || 100000));
     $('kp-ctv-modal').classList.add('open');
+    stopDepPoll();
+    lastKnownBal = Number(profile?.balance || 0);
+    depPollTimer = setInterval(pollDepOnce, 4000);
   };
 
   window.kpSetDep = (amt) => {
@@ -394,7 +463,17 @@
     try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); await syncAccount(); $('kp-ctv-modal').classList.remove('open'); }
     catch (err) { $('kp-m-msg').textContent = err.message; }
   });
-  $('kp-m-refresh-bal').addEventListener('click', async () => { await syncAccount(); $('kp-m-msg').textContent = 'Đã cập nhật số dư!'; });
+  $('kp-m-copy-stk').addEventListener('click', async () => {
+    await copyStr(walletMeta.accountNumber);
+    $('kp-m-msg').style.color = '#34d399';
+    $('kp-m-msg').textContent = 'Đã sao chép số tài khoản MB Bank!';
+  });
+  $('kp-m-copy-memo').addEventListener('click', async () => {
+    await copyStr($('kp-m-dep-memo').textContent);
+    $('kp-m-msg').style.color = '#34d399';
+    $('kp-m-msg').textContent = 'Đã sao chép nội dung chuyển khoản!';
+  });
+  $('kp-m-refresh-bal').addEventListener('click', async () => { await syncAccount(); $('kp-m-msg').style.color = '#34d399'; $('kp-m-msg').textContent = 'Đã cập nhật số dư!'; });
   $('kp-logout-btn').addEventListener('click', () => auth.signOut());
   auth.onAuthStateChanged(() => { if (!regBusy) void syncAccount(); });
   void loadPackages();
