@@ -67,7 +67,10 @@
           <input id="login-id" type="text" required placeholder="ctv_username hoặc email@gmail.com" class="w-full px-3.5 py-3 rounded-xl bg-zinc-950 border border-zinc-800 text-base sm:text-sm text-white focus:outline-none focus:border-amber-400">
         </div>
         <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Mật khẩu</label>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400">Mật khẩu</label>
+            <button id="forgot-pass-btn" type="button" class="text-[11px] font-semibold text-amber-400 hover:underline">Quên / chưa đặt mật khẩu?</button>
+          </div>
           <input id="login-pass" type="password" required placeholder="••••••••••" class="w-full px-3.5 py-3 rounded-xl bg-zinc-950 border border-zinc-800 text-base sm:text-sm text-white focus:outline-none focus:border-amber-400">
         </div>
         <button type="submit" class="w-full py-3.5 rounded-xl gold-btn text-sm uppercase tracking-wider transition">Đăng nhập CTV</button>
@@ -308,6 +311,10 @@
         <button id="refresh-admin-req-btn" type="button" class="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold text-white hover:bg-zinc-800">Làm mới</button>
       </div>
       <div id="admin-requests-list" class="space-y-2 max-h-96 overflow-y-auto text-xs text-zinc-300"></div>
+      <div class="border-t border-zinc-800 pt-3 space-y-2">
+        <div class="text-xs font-black text-zinc-300 uppercase tracking-wider">Log Webhook SePay gần nhất</div>
+        <div id="admin-webhook-logs" class="space-y-1.5 max-h-60 overflow-y-auto text-[11px] text-zinc-400"></div>
+      </div>
     </section>
 
     <!-- Orders & Deposits History -->
@@ -427,7 +434,29 @@
       await loadPortal();
       toast('Đăng nhập CTV thành công!', 'success');
     } catch (err) {
-      toast(err.message || 'Đăng nhập thất bại.', 'error');
+      const code = String(err?.code || '');
+      let msg = err.message || 'Đăng nhập thất bại.';
+      if (code === 'auth/invalid-login-credentials' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
+        msg = 'Email hoặc mật khẩu không đúng (hoặc tài khoản chưa đặt mật khẩu qua link kích hoạt). Hãy bấm "Quên / chưa đặt mật khẩu?" để nhận link mới.';
+      } else if (code === 'auth/too-many-requests') {
+        msg = 'Thử đăng nhập sai quá nhiều lần. Vui lòng đợi vài phút hoặc đặt lại mật khẩu.';
+      }
+      toast(msg, 'error');
+    }
+  });
+
+  $('forgot-pass-btn').addEventListener('click', async () => {
+    const id = $('login-id').value.trim().toLowerCase();
+    if (!id) return toast('Nhập Username hoặc Email vào ô phía trên rồi bấm lại.', 'error');
+    const btn = $('forgot-pass-btn');
+    btn.disabled = true;
+    try {
+      const res = await apiFetch('/api/account', { action: 'forgot_password', identifier: id }, false);
+      toast(res.message || 'Đã gửi link đặt lại mật khẩu qua email!', 'success');
+    } catch (err) {
+      toast(err.message || 'Không thể gửi link đặt lại mật khẩu.', 'error');
+    } finally {
+      btn.disabled = false;
     }
   });
 
@@ -806,11 +835,11 @@
 
         const actions = document.createElement('div');
         actions.className = 'flex flex-wrap gap-2 shrink-0';
-        if (r.status === 'pending' || r.status === 'approved') {
+        if (r.status === 'pending' || r.status === 'approved' || r.status === 'activated') {
           const appBtn = document.createElement('button');
           appBtn.type = 'button';
           appBtn.className = 'px-3 py-1.5 rounded-lg gold-btn text-xs';
-          appBtn.textContent = r.status === 'approved' ? 'Gửi lại mail' : 'Duyệt & Gửi mail';
+          appBtn.textContent = r.status === 'activated' ? 'Cấp lại link đặt MK' : r.status === 'approved' ? 'Gửi lại mail' : 'Duyệt & Gửi mail';
           appBtn.addEventListener('click', async () => {
             appBtn.disabled = true;
             try {
@@ -857,6 +886,35 @@
       });
     } catch (err) {
       box.textContent = 'Lỗi tải danh sách: ' + err.message;
+    }
+
+    const whBox = $('admin-webhook-logs');
+    if (whBox) {
+      whBox.textContent = 'Đang tải log webhook...';
+      try {
+        const whData = await apiFetch('/api/account?action=admin_webhook_logs');
+        const logs = Array.isArray(whData.logs) ? whData.logs : [];
+        whBox.textContent = '';
+        if (!logs.length) {
+          whBox.textContent = 'Chưa có log webhook nào.';
+        } else {
+          logs.forEach((l) => {
+            const item = document.createElement('div');
+            const color = l.status === 'credited' ? 'text-emerald-400' : l.status === 'duplicate' ? 'text-amber-300' : 'text-red-400';
+            item.className = 'p-2 rounded-lg bg-zinc-950 border border-zinc-800 flex flex-wrap justify-between gap-2';
+            const left = document.createElement('span');
+            left.className = 'break-all';
+            left.textContent = `${l.username || l.candidate || '—'} · ${Number(l.amount || 0).toLocaleString('vi-VN')}đ · ND: ${l.content || '—'}`;
+            const right = document.createElement('span');
+            right.className = `font-bold ${color}`;
+            right.textContent = l.status === 'credited' ? 'Đã cộng' : `${l.status}${l.reason ? ' (' + l.reason + ')' : ''}`;
+            item.append(left, right);
+            whBox.appendChild(item);
+          });
+        }
+      } catch (err) {
+        whBox.textContent = 'Lỗi tải log webhook: ' + err.message;
+      }
     }
   }
   $('refresh-admin-req-btn').addEventListener('click', loadAdminRequests);
