@@ -76,7 +76,7 @@
         </button>
       </form>
 
-      <!-- REGISTER FORM -->
+      <!-- REGISTER FORM (Admin approval + email activation) -->
       <form id="register-form" class="space-y-3 hidden">
         <div>
           <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Họ và tên CTV</label>
@@ -93,21 +93,43 @@
           </div>
         </div>
         <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Email</label>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Email nhận link kích hoạt</label>
           <input id="reg-email" type="email" required placeholder="ctv@gmail.com" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-base sm:text-sm text-white focus:outline-none focus:border-amber-400">
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Mật khẩu (≥ 10 ký tự)</label>
-            <input id="reg-pass" type="password" required minlength="10" placeholder="••••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-base sm:text-sm text-white focus:outline-none focus:border-amber-400">
-          </div>
-          <div>
-            <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Nhập lại mật khẩu</label>
-            <input id="reg-confirm" type="password" required minlength="10" placeholder="••••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-base sm:text-sm text-white focus:outline-none focus:border-amber-400">
-          </div>
-        </div>
-        <button type="submit" class="w-full py-3.5 rounded-xl gold-btn text-sm uppercase tracking-wider transition">Tạo tài khoản CTV</button>
+        <p class="text-[11px] text-zinc-400 leading-relaxed bg-zinc-950/80 border border-zinc-800 rounded-xl p-2.5">
+          <i class="fa-solid fa-envelope-circle-check text-amber-400 mr-1"></i>Sau khi gửi đăng ký, Admin sẽ duyệt và gửi email kèm link để bạn tự đặt mật khẩu &amp; kích hoạt tài khoản.
+        </p>
+        <button id="reg-submit-btn" type="submit" class="w-full py-3.5 rounded-xl gold-btn text-sm uppercase tracking-wider transition">Gửi yêu cầu đăng ký CTV</button>
+        <div id="reg-pending-box" class="hidden p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/40 text-xs text-emerald-200 leading-relaxed"></div>
       </form>
+    </div>
+  </div>
+
+  <!-- EMAIL ACTIVATION & SET PASSWORD VIEW (?activate=TOKEN) -->
+  <div id="activate-view" class="hidden min-h-screen flex items-center justify-center p-4">
+    <div class="glass-card w-full max-w-md rounded-3xl p-6 md:p-8 shadow-2xl space-y-5">
+      <div class="text-center space-y-1.5">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-400/30 text-emerald-400 flex items-center justify-center mx-auto text-xl">
+          <i class="fa-solid fa-key"></i>
+        </div>
+        <h1 class="text-xl font-black text-white">Kích hoạt tài khoản CTV</h1>
+        <p id="act-meta" class="text-xs text-zinc-400">Đang kiểm tra link kích hoạt...</p>
+      </div>
+      <form id="activate-account-form" class="hidden space-y-3.5">
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Đặt mật khẩu mới (≥ 10 ký tự)</label>
+          <input id="act-pass" type="password" required minlength="10" placeholder="••••••••••" class="w-full px-3.5 py-3 rounded-xl bg-zinc-950 border border-zinc-800 text-base sm:text-sm text-white focus:outline-none focus:border-amber-400">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Nhập lại mật khẩu</label>
+          <input id="act-confirm" type="password" required minlength="10" placeholder="••••••••••" class="w-full px-3.5 py-3 rounded-xl bg-zinc-950 border border-zinc-800 text-base sm:text-sm text-white focus:outline-none focus:border-amber-400">
+        </div>
+        <button id="act-submit-btn" type="submit" class="w-full py-3.5 rounded-xl gold-btn text-sm uppercase tracking-wider transition">Đặt mật khẩu &amp; kích hoạt</button>
+      </form>
+      <div id="act-error-box" class="hidden p-3.5 rounded-xl bg-red-950/30 border border-red-500/40 text-xs text-red-200 text-center space-y-2">
+        <p id="act-error-text"></p>
+        <a href="ctv.html" class="inline-block px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-bold">Về trang đăng nhập</a>
+      </div>
     </div>
   </div>
 
@@ -277,6 +299,17 @@
       </section>
     </div>
 
+    <!-- Admin: Approve CTV Registrations -->
+    <section id="admin-requests-section" class="hidden glass-card rounded-2xl p-4 sm:p-5 space-y-3 border border-amber-400/30">
+      <div class="flex items-center justify-between gap-2">
+        <h3 class="text-sm font-black text-amber-400 uppercase tracking-wider">
+          <i class="fa-solid fa-user-check mr-1.5"></i>Admin · Duyệt đăng ký CTV &amp; Gửi mail kích hoạt
+        </h3>
+        <button id="refresh-admin-req-btn" type="button" class="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold text-white hover:bg-zinc-800">Làm mới</button>
+      </div>
+      <div id="admin-requests-list" class="space-y-2 max-h-96 overflow-y-auto text-xs text-zinc-300"></div>
+    </section>
+
     <!-- Orders & Deposits History -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <section class="glass-card rounded-2xl p-5 space-y-3">
@@ -404,27 +437,22 @@
     const username = $('reg-username').value.trim().toLowerCase();
     const zalo = $('reg-zalo').value.trim();
     const email = $('reg-email').value.trim().toLowerCase();
-    const pass = $('reg-pass').value;
-    const confirm = $('reg-confirm').value;
 
-    if (pass.length < 10 || pass !== confirm) return toast('Mật khẩu phải từ 10 ký tự và khớp nhau.', 'error');
     if (!/^[a-z0-9_-]{3,60}$/.test(username)) return toast('Username chỉ gồm chữ thường, số, _ hoặc - (3-60 ký tự).', 'error');
 
-    registering = true;
+    const btn = $('reg-submit-btn');
+    btn.disabled = true;
+    $('reg-pending-box').classList.add('hidden');
     try {
-      const cred = await auth.createUserWithEmailAndPassword(email, pass);
-      try {
-        await apiFetch('/api/account', { action: 'register', username, fullname, zalo });
-      } catch (err) {
-        await cred.user.delete().catch(() => auth.signOut().catch(() => {}));
-        throw err;
-      }
-      await loadPortal();
-      toast('Đăng ký tài khoản CTV thành công!', 'success');
+      const res = await apiFetch('/api/account', { action: 'request_register', username, fullname, zalo, email }, false);
+      $('reg-pending-box').textContent = res.message || 'Đã gửi yêu cầu đăng ký CTV! Admin sẽ duyệt và gửi email kích hoạt cho bạn.';
+      $('reg-pending-box').classList.remove('hidden');
+      $('register-form').reset();
+      toast('Đã gửi yêu cầu đăng ký CTV!', 'success');
     } catch (err) {
-      toast(err.message || 'Không thể đăng ký CTV.', 'error');
+      toast(err.message || 'Không thể gửi yêu cầu đăng ký.', 'error');
     } finally {
-      registering = false;
+      btn.disabled = false;
     }
   });
 
@@ -726,11 +754,143 @@
     renderOrders(acc.orders || []);
     renderDeposits(acc.deposits || []);
 
+    if (currentProfile.isMainAdmin) {
+      $('admin-requests-section').classList.remove('hidden');
+      void loadAdminRequests();
+    } else {
+      $('admin-requests-section').classList.add('hidden');
+    }
+
     const w = await apiFetch('/api/wallet');
     walletMeta = w;
     updateQr();
     startWalletPolling();
     if (!packages.length) void loadPackages();
+  }
+
+  async function loadAdminRequests() {
+    const box = $('admin-requests-list');
+    box.textContent = 'Đang tải danh sách yêu cầu...';
+    try {
+      const data = await apiFetch('/api/account?action=admin_requests');
+      const list = Array.isArray(data.requests) ? data.requests : [];
+      box.textContent = '';
+      if (!list.length) {
+        box.textContent = 'Chưa có yêu cầu đăng ký CTV nào.';
+        return;
+      }
+      list.forEach((r) => {
+        const row = document.createElement('div');
+        row.className = 'p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5';
+        const info = document.createElement('div');
+        info.className = 'space-y-0.5 min-w-0';
+        const top = document.createElement('div');
+        top.className = 'font-bold text-white flex flex-wrap items-center gap-2';
+        const badgeColor = r.status === 'pending' ? 'bg-amber-500/20 text-amber-300' : r.status === 'activated' ? 'bg-emerald-500/20 text-emerald-300' : r.status === 'approved' ? 'bg-sky-500/20 text-sky-300' : 'bg-red-500/20 text-red-300';
+        const badgeLabel = r.status === 'pending' ? 'Chờ duyệt' : r.status === 'activated' ? 'Đã kích hoạt' : r.status === 'approved' ? 'Đã gửi link' : 'Đã từ chối';
+        top.textContent = `@${r.username} · ${r.fullname}`;
+        const badge = document.createElement('span');
+        badge.className = `px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeColor}`;
+        badge.textContent = badgeLabel;
+        top.appendChild(badge);
+        const sub = document.createElement('div');
+        sub.className = 'text-zinc-400 break-all';
+        sub.textContent = `${r.email} · Zalo: ${r.zalo || '—'}`;
+        info.append(top, sub);
+
+        const actions = document.createElement('div');
+        actions.className = 'flex flex-wrap gap-2 shrink-0';
+        if (r.status === 'pending' || r.status === 'approved') {
+          const appBtn = document.createElement('button');
+          appBtn.type = 'button';
+          appBtn.className = 'px-3 py-1.5 rounded-lg gold-btn text-xs';
+          appBtn.textContent = r.status === 'approved' ? 'Gửi lại mail' : 'Duyệt & Gửi mail';
+          appBtn.addEventListener('click', async () => {
+            appBtn.disabled = true;
+            try {
+              const res = await apiFetch('/api/account', { action: 'admin_approve', requestId: r.id });
+              if (res.emailSent) {
+                toast(`Đã duyệt & gửi email kích hoạt tới ${r.email}!`, 'success');
+              } else {
+                await copyText(res.activateUrl || '');
+                toast(`Đã duyệt! Chưa cấu hình RESEND_API_KEY nên đã copy link kích hoạt để bạn gửi thủ công.`, 'info');
+              }
+              void loadAdminRequests();
+            } catch (err) {
+              toast(err.message, 'error');
+            } finally {
+              appBtn.disabled = false;
+            }
+          });
+          actions.appendChild(appBtn);
+        }
+        if (r.status === 'pending') {
+          const rejBtn = document.createElement('button');
+          rejBtn.type = 'button';
+          rejBtn.className = 'px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold text-zinc-300 hover:bg-red-950/60';
+          rejBtn.textContent = 'Từ chối';
+          rejBtn.addEventListener('click', async () => {
+            rejBtn.disabled = true;
+            try {
+              await apiFetch('/api/account', { action: 'admin_reject', requestId: r.id });
+              toast('Đã từ chối yêu cầu.', 'info');
+              void loadAdminRequests();
+            } catch (err) {
+              toast(err.message, 'error');
+            } finally {
+              rejBtn.disabled = false;
+            }
+          });
+          actions.appendChild(rejBtn);
+        }
+        row.append(info, actions);
+        box.appendChild(row);
+      });
+    } catch (err) {
+      box.textContent = 'Lỗi tải danh sách: ' + err.message;
+    }
+  }
+  $('refresh-admin-req-btn').addEventListener('click', loadAdminRequests);
+
+  const activateToken = new URLSearchParams(location.search).get('activate');
+  if (activateToken) {
+    authView.classList.add('hidden');
+    setupView.classList.add('hidden');
+    portalView.classList.add('hidden');
+    $('activate-view').classList.remove('hidden');
+
+    (async () => {
+      try {
+        const info = await apiFetch(`/api/account?action=check_activate&token=${encodeURIComponent(activateToken)}`, null, false);
+        $('act-meta').textContent = `Xin chào @${info.username} (${info.email}). Hãy đặt mật khẩu để kích hoạt tài khoản CTV.`;
+        $('activate-account-form').classList.remove('hidden');
+      } catch (err) {
+        $('act-meta').textContent = '';
+        $('act-error-text').textContent = err.message || 'Link kích hoạt không hợp lệ hoặc đã hết hạn.';
+        $('act-error-box').classList.remove('hidden');
+      }
+    })();
+
+    $('activate-account-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const pass = $('act-pass').value;
+      const confirm = $('act-confirm').value;
+      if (pass.length < 10 || pass !== confirm) return toast('Mật khẩu phải từ 10 ký tự và khớp nhau.', 'error');
+      const btn = $('act-submit-btn');
+      btn.disabled = true;
+      try {
+        const res = await apiFetch('/api/account', { action: 'complete_activate', token: activateToken, password: pass }, false);
+        await auth.signInWithCustomToken(res.customToken);
+        history.replaceState({}, '', 'ctv.html');
+        $('activate-view').classList.add('hidden');
+        await loadPortal();
+        toast('Kích hoạt tài khoản CTV thành công!', 'success');
+      } catch (err) {
+        toast(err.message || 'Không thể kích hoạt tài khoản.', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    });
   }
 
   $('refresh-wallet-btn').addEventListener('click', async () => {
@@ -747,7 +907,7 @@
   });
 
   auth.onAuthStateChanged(async (user) => {
-    if (registering) return;
+    if (registering || activateToken) return;
     if (!user) {
       currentProfile = null;
       lastKnownBalance = null;
