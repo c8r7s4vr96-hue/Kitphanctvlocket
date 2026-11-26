@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Cổng Cộng Tác Viên · Locket KitPhan</title>
+  <meta name="description" content="Hệ thống Cộng Tác Viên Locket Gold KitPhan — Kích hoạt tự động 24/7, nạp tiền MB Bank SePay 50.000đ - 1.000.000đ.">
+  <link rel="icon" type="image/svg+xml" href="assets/img-locket/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; background: #09090b; color: #f4f4f5; }
+    .glass-card {
+      background: linear-gradient(160deg, rgba(24,24,27,.94), rgba(9,9,11,.96));
+      border: 1px solid rgba(255,255,255,.09);
+      backdrop-filter: blur(18px);
+    }
+    .gold-btn { background: #FFB000; color: #18181b; font-weight: 800; }
+    .gold-btn:hover { background: #ffc033; }
+    .pkg-card { border: 1px solid rgba(255,255,255,.1); background: rgba(24,24,27,.7); transition: all .18s ease; }
+    .pkg-card.active { border-color: #FFB000; background: rgba(255,176,0,.1); box-shadow: 0 0 0 1px rgba(255,176,0,.35); }
+    .nav-pill.active { background: #FFB000; color: #18181b; font-weight: 800; }
+  </style>
+</head>
+<body class="min-h-screen antialiased">
+
+  <!-- Toast -->
+  <div id="toast-box" class="fixed top-4 right-4 z-50 space-y-2 max-w-sm"></div>
+
+  <!-- AUTH VIEW -->
+  <div id="auth-view" class="min-h-screen flex items-center justify-center p-4">
+    <div class="glass-card w-full max-w-md rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
+      <div class="flex items-center justify-between">
+        <a href="index.html" class="text-xs text-zinc-400 hover:text-white flex items-center gap-1.5">
+          <i class="fa-solid fa-arrow-left"></i> Trang chủ
+        </a>
+        <a href="https://zalo.me/0397867242" target="_blank" rel="noopener" class="text-xs font-semibold text-amber-400 hover:underline">
+          <i class="fa-solid fa-headset mr-1"></i>Zalo 0397 867 242
+        </a>
+      </div>
+
+      <div class="text-center space-y-1.5">
+        <div class="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-400/30 text-amber-400 flex items-center justify-center mx-auto text-xl">
+          <i class="fa-solid fa-crown"></i>
+        </div>
+        <h1 class="text-2xl font-black tracking-tight text-white">Locket KitPhan CTV</h1>
+        <p class="text-xs text-zinc-400">Cổng Cộng Tác Viên kích hoạt Locket Gold tự động 24/7</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 p-1 rounded-xl bg-zinc-900 border border-zinc-800">
+        <button id="tab-btn-login" type="button" class="nav-pill active py-2 rounded-lg text-xs transition">Đăng nhập CTV</button>
+        <button id="tab-btn-register" type="button" class="nav-pill py-2 rounded-lg text-xs text-zinc-400 transition">Đăng ký CTV</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form id="login-form" class="space-y-3.5">
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Username hoặc Email</label>
+          <input id="login-id" type="text" required placeholder="ctv_username hoặc email@gmail.com" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-white focus:outline-none focus:border-amber-400">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Mật khẩu</label>
+          <input id="login-pass" type="password" required placeholder="••••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-white focus:outline-none focus:border-amber-400">
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl gold-btn text-sm uppercase tracking-wider transition">Đăng nhập CTV</button>
+        <button id="google-btn" type="button" class="w-full py-2.5 rounded-xl border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-xs font-bold text-white flex items-center justify-center gap-2 transition">
+          <i class="fa-brands fa-google text-amber-400"></i> Tiếp tục với Google
+        </button>
+      </form>
+
+      <!-- REGISTER FORM -->
+      <form id="register-form" class="space-y-3 hidden">
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Họ và tên CTV</label>
+          <input id="reg-fullname" type="text" required placeholder="Nguyễn Văn A" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-white focus:outline-none focus:border-amber-400">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Username CTV</label>
+            <input id="reg-username" type="text" required placeholder="kitphanctv1" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-white focus:outline-none focus:border-amber-400">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Số Zalo</label>
+            <input id="reg-zalo" type="tel" required placeholder="0397867242" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-white focus:outline-none focus:border-amber-400">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Email</label>
+          <input id="reg-email" type="email" required placeholder="ctv@gmail.com" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-white focus:outline-none focus:border-amber-400">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Mật khẩu (≥ 10 ký tự)</label>
+            <input id="reg-pass" type="password" required minlength="10" placeholder="••••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-white focus:outline-none focus:border-amber-400">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Nhập lại mật khẩu</label>
+            <input id="reg-confirm" type="password" required minlength="10" placeholder="••••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-white focus:outline-none focus:border-amber-400">
+          </div>
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl gold-btn text-sm uppercase tracking-wider transition">Tạo tài khoản CTV</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- GOOGLE SETUP USERNAME MODAL -->
+  <div id="setup-view" class="hidden min-h-screen flex items-center justify-center p-4">
+    <div class="glass-card w-full max-w-md rounded-3xl p-6 space-y-4">
+      <h2 class="text-lg font-black text-white">Hoàn tất hồ sơ CTV</h2>
+      <p class="text-xs text-zinc-400">Chọn Username CTV và số Zalo để kích hoạt ví nạp tiền tự động.</p>
+      <form id="setup-form" class="space-y-3">
+        <input id="setup-fullname" type="text" required placeholder="Họ và tên CTV" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-white">
+        <input id="setup-username" type="text" required placeholder="Username CTV (vd: ctv01)" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-white">
+        <input id="setup-zalo" type="tel" required placeholder="Số Zalo liên hệ" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-white">
+        <button type="submit" class="w-full py-3 rounded-xl gold-btn text-sm">Xác nhận &amp; Vào cổng CTV</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- CTV PORTAL MAIN -->
+  <div id="portal-view" class="hidden max-w-6xl mx-auto p-4 md:p-6 space-y-6">
+    <!-- Topbar -->
+    <header class="glass-card rounded-2xl px-5 py-4 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-400/30 text-amber-400 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-crown"></i>
+        </div>
+        <div>
+          <div class="font-black text-base text-white">Locket KitPhan CTV</div>
+          <div id="ctv-user-meta" class="text-xs text-zinc-400">@ctv · Cộng tác viên</div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2.5">
+        <a href="index.html" class="px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-xs font-semibold text-zinc-200">Trang chủ</a>
+        <a href="cai-dns.html" class="px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-xs font-semibold text-zinc-200">HD Cài DNS</a>
+        <a href="https://zalo.me/0397867242" target="_blank" rel="noopener" class="px-3 py-2 rounded-xl border border-amber-400/30 bg-amber-500/10 text-xs font-bold text-amber-300">Zalo: 0397 867 242</a>
+        <button id="logout-btn" type="button" class="px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-red-950/60 text-xs font-semibold text-zinc-300">Đăng xuất</button>
+      </div>
+    </header>
+
+    <!-- KPI Row -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="glass-card rounded-2xl p-4">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Số dư ví CTV</div>
+        <div id="stat-balance" class="text-2xl font-black text-amber-400 mt-1">0 đ</div>
+      </div>
+      <div class="glass-card rounded-2xl p-4">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Tổng tiền đã nạp</div>
+        <div id="stat-deposited" class="text-2xl font-black text-white mt-1">0 đ</div>
+      </div>
+      <div class="glass-card rounded-2xl p-4">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Đơn đã kích hoạt</div>
+        <div id="stat-orders" class="text-2xl font-black text-white mt-1">0</div>
+      </div>
+      <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Hạn mức nạp CTV</div>
+        <div class="text-sm font-bold text-emerald-400 mt-1">50.000đ – 1.000.000đ</div>
+      </div>
+    </div>
+
+    <!-- Main 2-column grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Left: Locket Activation -->
+      <section class="glass-card rounded-2xl p-5 md:p-6 lg:col-span-7 space-y-5">
+        <div class="flex items-center justify-between border-b border-zinc-800 pb-4">
+          <div>
+            <h2 class="text-lg font-black text-white">Kích hoạt Locket Gold cho khách</h2>
+            <p class="text-xs text-zinc-400">Kết nối trực tiếp API uplocket.io.vn · Trả link DNS riêng ngay lập tức</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold uppercase">Auto 24/7</span>
+        </div>
+
+        <!-- Step 1: Lookup -->
+        <div class="space-y-2.5">
+          <label class="block text-xs font-extrabold uppercase tracking-wider text-zinc-300">1. Tra cứu username Locket khách hàng</label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="locket-user-input" type="text" placeholder="Nhập username Locket (không cần @)" class="flex-1 px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-white focus:outline-none focus:border-amber-400">
+            <button id="lookup-btn" type="button" class="px-5 py-2.5 rounded-xl bg-white text-black text-xs font-extrabold uppercase tracking-wider hover:bg-zinc-200 transition">Kiểm tra</button>
+          </div>
+          <p id="lookup-status" class="text-xs text-zinc-400"></p>
+          <div id="lookup-card" class="hidden p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center gap-3">
+            <img id="lookup-avatar" alt="Avatar" class="w-10 h-10 rounded-full object-cover border border-zinc-700 hidden">
+            <div class="min-w-0 flex-1 text-xs">
+              <div id="lookup-name" class="font-bold text-white truncate"></div>
+              <div id="lookup-info" class="text-zinc-400 truncate"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Packages -->
+        <div class="space-y-2.5 border-t border-zinc-800 pt-4">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-extrabold uppercase tracking-wider text-zinc-300">2. Chọn gói Locket Gold CTV</label>
+            <button id="reload-pkgs-btn" type="button" class="text-xs text-amber-400 hover:underline">Làm mới gói</button>
+          </div>
+          <div id="packages-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+          <p id="packages-status" class="text-xs text-zinc-400"></p>
+        </div>
+
+        <!-- Step 3: Activate -->
+        <div class="space-y-3 border-t border-zinc-800 pt-4">
+          <button id="activate-btn" type="button" disabled class="w-full py-3.5 rounded-xl gold-btn text-sm uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed transition">Kích hoạt Locket Gold</button>
+          <p id="activate-status" class="text-xs text-zinc-300"></p>
+        </div>
+
+        <!-- Result Box -->
+        <div id="result-box" class="hidden rounded-2xl border border-emerald-500/40 bg-emerald-950/20 p-4 space-y-3">
+          <div class="text-sm font-black text-emerald-300"><i class="fa-solid fa-circle-check mr-1.5"></i>Kích hoạt thành công!</div>
+          <div id="result-meta" class="text-xs text-zinc-200 space-y-1"></div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <code id="result-dns" class="flex-1 px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-white break-all"></code>
+            <a id="result-open-dns" href="#" target="_blank" rel="noopener" class="px-4 py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold text-white text-center">Mở DNS</a>
+            <button id="result-copy-dns" type="button" class="px-4 py-2 rounded-lg bg-white text-black text-xs font-bold">Sao chép</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: MB Bank SePay Deposit (50k - 1M) -->
+      <section class="glass-card rounded-2xl p-5 md:p-6 lg:col-span-5 space-y-4">
+        <div class="border-b border-zinc-800 pb-4">
+          <h2 class="text-lg font-black text-white">Nạp tiền ví CTV (MB Bank)</h2>
+          <p class="text-xs text-zinc-400">Nạp tự động qua SePay · Giới hạn 50.000đ – 1.000.000đ</p>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-zinc-300">Chọn nhanh số tiền nạp (50.000đ – 1.000.000đ)</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" data-amt="50000" class="amt-btn py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold hover:border-amber-400">50.000đ</button>
+            <button type="button" data-amt="100000" class="amt-btn py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold hover:border-amber-400">100.000đ</button>
+            <button type="button" data-amt="200000" class="amt-btn py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold hover:border-amber-400">200.000đ</button>
+            <button type="button" data-amt="500000" class="amt-btn py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold hover:border-amber-400">500.000đ</button>
+            <button type="button" data-amt="1000000" class="amt-btn py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold hover:border-amber-400 col-span-2">1.000.000đ</button>
+          </div>
+          <input id="deposit-amount" type="number" min="50000" max="1000000" step="10000" value="100000" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-white focus:outline-none focus:border-amber-400">
+          <p id="deposit-range-msg" class="text-[11px] text-zinc-400">Hợp lệ: từ 50.000đ đến 1.000.000đ / giao dịch.</p>
+        </div>
+
+        <div class="rounded-2xl bg-white p-3 w-52 mx-auto">
+          <img id="vietqr-img" alt="QR MB Bank" class="w-full h-auto rounded-lg">
+        </div>
+
+        <div class="rounded-xl bg-zinc-950 border border-zinc-800 p-3.5 space-y-2 text-xs">
+          <div class="flex justify-between gap-2"><span class="text-zinc-400">Ngân hàng:</span><span class="font-bold text-white">MB Bank</span></div>
+          <div class="flex justify-between gap-2 items-center">
+            <span class="text-zinc-400">Số tài khoản:</span>
+            <button id="copy-stk-btn" type="button" class="font-mono font-bold text-amber-400 hover:underline">89123456789125 <i class="fa-regular fa-copy ml-1"></i></button>
+          </div>
+          <div class="flex justify-between gap-2 items-center">
+            <span class="text-zinc-400">Nội dung CK:</span>
+            <button id="copy-memo-btn" type="button" class="font-mono font-bold text-emerald-400 hover:underline"><span id="deposit-memo">KITPHANCTV ...</span> <i class="fa-regular fa-copy ml-1"></i></button>
+          </div>
+        </div>
+
+        <button id="refresh-wallet-btn" type="button" class="w-full py-2.5 rounded-xl border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-xs font-bold text-white transition">
+          <i class="fa-solid fa-rotate mr-1.5"></i>Kiểm tra số dư ngay
+        </button>
+      </section>
+    </div>
+
+    <!-- Orders & Deposits History -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <section class="glass-card rounded-2xl p-5 space-y-3">
+        <h3 class="text-sm font-black text-white uppercase tracking-wider">Lịch sử kích hoạt Locket CTV</h3>
+        <div id="orders-list" class="space-y-2 max-h-80 overflow-y-auto text-xs text-zinc-300"></div>
+      </section>
+      <section class="glass-card rounded-2xl p-5 space-y-3">
+        <h3 class="text-sm font-black text-white uppercase tracking-wider">Lịch sử nạp tiền SePay</h3>
+        <div id="deposits-list" class="space-y-2 max-h-80 overflow-y-auto text-xs text-zinc-300"></div>
+      </section>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const firebaseConfig = {
+    apiKey: "AIzaSyA5yA1Wc_KrRPVnGsYsKF_FnY901ApfB_E",
+    authDomain: "kitphanmmo.firebaseapp.com",
+    databaseURL: "https://kitphanmmo-default-rtdb.firebaseio.com",
+    projectId: "kitphanmmo",
+    storageBucket: "kitphanmmo.firebasestorage.app",
+    messagingSenderId: "15650440474",
+    appId: "1:15650440474:web:330c96b21bbc3252b618a3",
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  const $ = (id) => document.getElementById(id);
+  const authView = $('auth-view');
+  const setupView = $('setup-view');
+  const portalView = $('portal-view');
+
+  let currentProfile = null;
+  let packages = [];
+  let selectedPkg = null;
+  let registering = false;
+  let walletMeta = { accountNumber: '89123456789125', transferContent: 'KITPHANCTV', minDepositVnd: 50000, maxDepositVnd: 1000000 };
+
+  function toast(msg, type = 'info') {
+    const el = document.createElement('div');
+    const border = type === 'error' ? 'border-red-500/50 text-red-200' : type === 'success' ? 'border-emerald-500/50 text-emerald-200' : 'border-zinc-700 text-zinc-100';
+    el.className = `px-4 py-3 rounded-xl bg-zinc-950/95 border ${border} text-xs font-semibold shadow-xl`;
+    el.textContent = msg;
+    $('toast-box').appendChild(el);
+    setTimeout(() => el.remove(), 5500);
+  }
+
+  async function apiFetch(url, body = null, useAuth = true) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (useAuth) {
+      if (!auth.currentUser) throw new Error('Vui lòng đăng nhập.');
+      headers.Authorization = 'Bearer ' + await auth.currentUser.getIdToken();
+    }
+    const res = await fetch(url, {
+      method: body ? 'POST' : 'GET',
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+      cache: 'no-store',
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
+    return data;
+  }
+
+  // Auth tabs
+  $('tab-btn-login').addEventListener('click', () => {
+    $('tab-btn-login').classList.add('active');
+    $('tab-btn-register').classList.remove('active', 'text-black');
+    $('tab-btn-register').classList.add('text-zinc-400');
+    $('login-form').classList.remove('hidden');
+    $('register-form').classList.add('hidden');
+  });
+  $('tab-btn-register').addEventListener('click', () => {
+    $('tab-btn-register').classList.add('active');
+    $('tab-btn-register').classList.remove('text-zinc-400');
+    $('tab-btn-login').classList.remove('active');
+    $('tab-btn-login').classList.add('text-zinc-400');
+    $('register-form').classList.remove('hidden');
+    $('login-form').classList.add('hidden');
+  });
+
+  $('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = $('login-id').value.trim().toLowerCase();
+    const pass = $('login-pass').value;
+    try {
+      if (id.includes('@')) {
+        await auth.signInWithEmailAndPassword(id, pass);
+      } else {
+        const res = await apiFetch('/api/account', { action: 'login_username', username: id, password: pass }, false);
+        await auth.signInWithCustomToken(res.customToken);
+      }
+      await loadPortal();
+      toast('Đăng nhập CTV thành công!', 'success');
+    } catch (err) {
+      toast(err.message || 'Đăng nhập thất bại.', 'error');
+    }
+  });
+
+  $('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fullname = $('reg-fullname').value.trim();
+    const username = $('reg-username').value.trim().toLowerCase();
+    const zalo = $('reg-zalo').value.trim();
+    const email = $('reg-email').value.trim().toLowerCase();
+    const pass = $('reg-pass').value;
+    const confirm = $('reg-confirm').value;
+
+    if (pass.length < 10 || pass !== confirm) return toast('Mật khẩu phải từ 10 ký tự và khớp nhau.', 'error');
+    if (!/^[a-z0-9_-]{3,60}$/.test(username)) return toast('Username chỉ gồm chữ thường, số, _ hoặc - (3-60 ký tự).', 'error');
+
+    registering = true;
+    try {
+      const cred = await auth.createUserWithEmailAndPassword(email, pass);
+      try {
+        await apiFetch('/api/account', { action: 'register', username, fullname, zalo });
+      } catch (err) {
+        await cred.user.delete().catch(() => auth.signOut().catch(() => {}));
+        throw err;
+      }
+      await loadPortal();
+      toast('Đăng ký tài khoản CTV thành công!', 'success');
+    } catch (err) {
+      toast(err.message || 'Không thể đăng ký CTV.', 'error');
+    } finally {
+      registering = false;
+    }
+  });
+
+  $('google-btn').addEventListener('click', async () => {
+    try {
+      await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+      await loadPortal();
+    } catch (err) {
+      toast(err.message || 'Đăng nhập Google chưa thành công.', 'error');
+    }
+  });
+
+  $('setup-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await apiFetch('/api/account', {
+        action: 'register',
+        fullname: $('setup-fullname').value.trim(),
+        username: $('setup-username').value.trim().toLowerCase(),
+        zalo: $('setup-zalo').value.trim(),
+      });
+      await loadPortal();
+      toast('Kích hoạt tài khoản CTV thành công!', 'success');
+    } catch (err) {
+      toast(err.message, 'error');
+    }
+  });
+
+  $('logout-btn').addEventListener('click', () => auth.signOut());
+
+  function updateQr() {
+    let amt = Number($('deposit-amount').value || 0);
+    const min = walletMeta.minDepositVnd || 50000;
+    const max = walletMeta.maxDepositVnd || 1000000;
+    const msg = $('deposit-range-msg');
+    if (!Number.isFinite(amt) || amt < min || amt > max) {
+      msg.className = 'text-[11px] text-red-400 font-semibold';
+      msg.textContent = `Số tiền nạp CTV phải từ ${min.toLocaleString('vi-VN')}đ đến ${max.toLocaleString('vi-VN')}đ.`;
+      amt = Math.min(max, Math.max(min, amt || min));
+    } else {
+      msg.className = 'text-[11px] text-zinc-400';
+      msg.textContent = `Hợp lệ: từ ${min.toLocaleString('vi-VN')}đ đến ${max.toLocaleString('vi-VN')}đ / giao dịch.`;
+    }
+    const memo = walletMeta.transferContent || `KITPHANCTV ${currentProfile?.username || ''}`;
+    $('deposit-memo').textContent = memo;
+    $('vietqr-img').src = `https://img.vietqr.io/image/MB-${encodeURIComponent(walletMeta.accountNumber)}-compact2.png?amount=${amt}&addInfo=${encodeURIComponent(memo)}`;
+  }
+
+  document.querySelectorAll('.amt-btn').forEach((b) => {
+    b.addEventListener('click', () => {
+      $('deposit-amount').value = b.getAttribute('data-amt');
+      updateQr();
+    });
+  });
+  $('deposit-amount').addEventListener('input', updateQr);
+
+  $('copy-stk-btn').addEventListener('click', async () => {
+    await navigator.clipboard.writeText(walletMeta.accountNumber).catch(() => {});
+    toast('Đã sao chép số tài khoản MB Bank!', 'success');
+  });
+  $('copy-memo-btn').addEventListener('click', async () => {
+    await navigator.clipboard.writeText($('deposit-memo').textContent).catch(() => {});
+    toast('Đã sao chép nội dung chuyển khoản!', 'success');
+  });
+
+  function renderOrders(list) {
+    const box = $('orders-list');
+    box.textContent = '';
+    if (!list.length) {
+      box.textContent = 'Chưa có đơn kích hoạt nào.';
+      return;
+    }
+    list.forEach((o) => {
+      const row = document.createElement('div');
+      row.className = 'p-3 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1';
+      const top = document.createElement('div');
+      top.className = 'flex justify-between font-bold text-white';
+      top.textContent = `@${o.locket?.username || ''} · ${o.productName || ''}`;
+      const sub = document.createElement('div');
+      sub.className = 'text-zinc-400 flex flex-wrap justify-between gap-2';
+      sub.textContent = `${Number(o.price || 0).toLocaleString('vi-VN')}đ · Mã: ${o.locket?.activationCode || '—'}`;
+      row.append(top, sub);
+      if (o.locket?.dnsUrl) {
+        const a = document.createElement('a');
+        a.href = o.locket.dnsUrl;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.className = 'text-amber-400 hover:underline block truncate';
+        a.textContent = o.locket.dnsUrl;
+        row.appendChild(a);
+      }
+      box.appendChild(row);
+    });
+  }
+
+  function renderDeposits(list) {
+    const box = $('deposits-list');
+    box.textContent = '';
+    if (!list.length) {
+      box.textContent = 'Chưa có giao dịch nạp tiền nào.';
+      return;
+    }
+    list.forEach((d) => {
+      const row = document.createElement('div');
+      row.className = 'p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex justify-between items-center';
+      const left = document.createElement('div');
+      left.innerHTML = '';
+      const t = document.createElement('div');
+      t.className = 'font-bold text-emerald-400';
+      t.textContent = `+${Number(d.amount || 0).toLocaleString('vi-VN')}đ`;
+      const s = document.createElement('div');
+      s.className = 'text-zinc-400';
+      s.textContent = d.content || 'SePay MB Bank';
+      left.append(t, s);
+      const st = document.createElement('span');
+      st.className = 'text-[11px] text-zinc-400';
+      st.textContent = d.status || 'Thành công';
+      row.append(left, st);
+      box.appendChild(row);
+    });
+  }
+
+  async function loadPackages() {
+    $('packages-status').textContent = 'Đang tải danh sách gói từ uplocket.io.vn...';
+    try {
+      const data = await apiFetch('/api/locket?action=catalog', null, false);
+      packages = Array.isArray(data.packages) ? data.packages : [];
+      const grid = $('packages-grid');
+      grid.textContent = '';
+      selectedPkg = packages.find((p) => p.available) || null;
+      packages.forEach((p) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.disabled = !p.available;
+        btn.className = `pkg-card rounded-xl p-3.5 text-left ${selectedPkg?.code === p.code ? 'active' : ''}`;
+        const title = document.createElement('div');
+        title.className = 'font-bold text-sm text-white';
+        title.textContent = p.name;
+        const meta = document.createElement('div');
+        meta.className = 'text-[11px] text-zinc-400 mt-0.5';
+        meta.textContent = `${p.lifetime ? 'Vĩnh viễn' : (p.durationDays ? p.durationDays + ' ngày' : p.code)}${p.videoMode ? ' · Video ' + p.videoMode : ''}`;
+        const price = document.createElement('div');
+        price.className = 'text-base font-black text-amber-400 mt-2';
+        price.textContent = p.available ? `${Number(p.priceVnd).toLocaleString('vi-VN')} đ` : 'Chưa mở bán';
+        btn.append(title, meta, price);
+        btn.addEventListener('click', () => {
+          selectedPkg = p;
+          grid.querySelectorAll('.pkg-card').forEach((el) => el.classList.remove('active'));
+          btn.classList.add('active');
+          updateActivateBtn();
+        });
+        grid.appendChild(btn);
+      });
+      $('packages-status').textContent = packages.length ? '' : 'Chưa có gói nào đang mở bán.';
+      updateActivateBtn();
+    } catch (err) {
+      $('packages-status').textContent = 'Không thể tải gói: ' + err.message;
+    }
+  }
+
+  function updateActivateBtn() {
+    const btn = $('activate-btn');
+    if (!selectedPkg || !selectedPkg.available) {
+      btn.disabled = true;
+      btn.textContent = 'Chọn gói Locket Gold';
+      return;
+    }
+    btn.disabled = false;
+    btn.textContent = `Kích hoạt ${selectedPkg.name} · ${Number(selectedPkg.priceVnd).toLocaleString('vi-VN')}đ`;
+  }
+
+  $('reload-pkgs-btn').addEventListener('click', loadPackages);
+
+  $('lookup-btn').addEventListener('click', async () => {
+    const id = $('locket-user-input').value.trim().replace(/^@/, '');
+    if (!id) return toast('Nhập username Locket trước.', 'error');
+    $('lookup-status').textContent = 'Đang tra cứu tài khoản Locket...';
+    $('lookup-card').classList.add('hidden');
+    try {
+      const res = await apiFetch('/api/locket?action=lookup', { identifier: id });
+      const d = res.data || {};
+      $('lookup-name').textContent = '@' + (d.username || id);
+      $('lookup-info').textContent = d.check?.active ? `Đang kích hoạt (${d.check.packageName || 'Gold'})` : 'Sẵn sàng nâng cấp Locket Gold';
+      if (d.avatarUrl && /^https?:\/\//i.test(d.avatarUrl)) {
+        $('lookup-avatar').src = d.avatarUrl;
+        $('lookup-avatar').classList.remove('hidden');
+      } else {
+        $('lookup-avatar').classList.add('hidden');
+      }
+      $('lookup-card').classList.remove('hidden');
+      $('lookup-status').textContent = '';
+    } catch (err) {
+      $('lookup-status').textContent = err.message;
+    }
+  });
+
+  $('activate-btn').addEventListener('click', async () => {
+    const username = $('locket-user-input').value.trim().replace(/^@/, '');
+    if (!username) return toast('Vui lòng nhập username Locket của khách.', 'error');
+    if (!selectedPkg) return toast('Vui lòng chọn gói Locket Gold.', 'error');
+
+    const btn = $('activate-btn');
+    btn.disabled = true;
+    $('activate-status').textContent = 'Đang trừ ví CTV và kích hoạt trên uplocket.io.vn...';
+    $('result-box').classList.add('hidden');
+
+    try {
+      const reqId = 'ctv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+      const res = await apiFetch('/api/locket?action=export', {
+        locketUsername: username,
+        productId: selectedPkg.packageId || selectedPkg.code,
+        requestId: reqId,
+      });
+      $('activate-status').textContent = '';
+      $('result-meta').textContent = `@${res.locket?.username || username} · Mã: ${res.locket?.activationCode || '—'} · HSD: ${res.locket?.expiresAt ? new Date(res.locket.expiresAt).toLocaleDateString('vi-VN') : 'Theo gói'}`;
+      $('result-dns').textContent = res.locket?.dnsUrl || '';
+      $('result-open-dns').href = res.locket?.dnsUrl || '#';
+      $('result-box').classList.remove('hidden');
+      toast('Kích hoạt Locket Gold thành công!', 'success');
+      await loadPortal();
+    } catch (err) {
+      $('activate-status').textContent = err.message;
+      toast(err.message, 'error');
+    } finally {
+      updateActivateBtn();
+    }
+  });
+
+  $('result-copy-dns').addEventListener('click', async () => {
+    await navigator.clipboard.writeText($('result-dns').textContent || '').catch(() => {});
+    toast('Đã sao chép link DNS gửi khách!', 'success');
+  });
+
+  async function loadPortal() {
+    const acc = await apiFetch('/api/account');
+    if (acc.setupRequired) {
+      authView.classList.add('hidden');
+      portalView.classList.add('hidden');
+      setupView.classList.remove('hidden');
+      return;
+    }
+    currentProfile = acc.profile;
+    authView.classList.add('hidden');
+    setupView.classList.add('hidden');
+    portalView.classList.remove('hidden');
+
+    $('ctv-user-meta').textContent = `@${currentProfile.username} · ${currentProfile.fullname}${currentProfile.zalo ? ' · Zalo ' + currentProfile.zalo : ''}`;
+    $('stat-balance').textContent = `${Number(currentProfile.balance || 0).toLocaleString('vi-VN')} đ`;
+    $('stat-deposited').textContent = `${Number(currentProfile.totalDeposited || 0).toLocaleString('vi-VN')} đ`;
+    $('stat-orders').textContent = String((acc.orders || []).length);
+
+    renderOrders(acc.orders || []);
+    renderDeposits(acc.deposits || []);
+
+    const w = await apiFetch('/api/wallet');
+    walletMeta = w;
+    updateQr();
+    if (!packages.length) void loadPackages();
+  }
+
+  $('refresh-wallet-btn').addEventListener('click', async () => {
+    try {
+      await loadPortal();
+      toast('Đã cập nhật số dư ví CTV!', 'success');
+    } catch (err) {
+      toast(err.message, 'error');
+    }
+  });
+
+  auth.onAuthStateChanged(async (user) => {
+    if (registering) return;
+    if (!user) {
+      currentProfile = null;
+      portalView.classList.add('hidden');
+      setupView.classList.add('hidden');
+      authView.classList.remove('hidden');
+      return;
+    }
+    try {
+      await loadPortal();
+    } catch (err) {
+      toast(err.message, 'error');
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "locket-kitphan-ctv",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Locket KitPhan CTV Portal with uplocket.io.vn API, SePay HMAC-SHA256 deposits (50k-1M), and CTV registration",
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0"
+  },
+  "scripts": {
+    "build": "node scripts/build-static.js"
+  }
+}

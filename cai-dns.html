@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFFBF1">
+<title>Hướng dẫn cài DNS · Locket Gold</title>
+<meta name="description" content="Hướng dẫn cài hồ sơ DNS và bật tin cậy chứng chỉ trên iPhone, từng bước kèm ảnh minh họa.">
+<link rel="icon" href="assets/img-locket/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+:root{--cream:#FFFBF1;--line:#F0E3C3;--ink:#241a07;--muted:#7d705b;--amber:#FFB000;--font:ui-rounded,"SF Pro Rounded","Nunito",system-ui,sans-serif}*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:600 16px/1.55 var(--font)}button,a,summary,select{touch-action:manipulation}button,select{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}button:disabled{opacity:.35;cursor:default}:focus-visible{outline:3px solid #b97e00;outline-offset:4px}.nav{max-width:960px;margin:auto;padding:18px 24px;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:9px;font-size:20px;font-weight:900}.brand img{width:30px;height:30px;border-radius:9px}.back{font-size:13px;color:var(--muted)}main{max-width:960px;padding:8px 24px 36px;margin:auto}.heading{margin:6px 0 22px}h1{font-size:27px;letter-spacing:-.03em;line-height:1.2;margin:0 0 5px}.heading p{font-size:14px;color:var(--muted);margin:0}.guide{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}.copy{grid-column:2;grid-row:1}.count{color:var(--muted);font-size:13px;font-weight:800}.track{height:4px;background:var(--line);border-radius:99px;margin:10px 0 24px;overflow:hidden}.track span{display:block;background:var(--amber);height:100%;transition:width .2s}h2{font-size:30px;line-height:1.25;letter-spacing:-.025em;margin:0 0 12px}#step-action{margin:0;font-size:18px;line-height:1.6}.warning{font-size:13px;line-height:1.6;background:#fff1d1;border-left:3px solid var(--amber);padding:12px;margin-top:16px}.download{margin-top:18px;display:inline-flex;background:var(--amber);border-radius:12px;padding:12px 20px;font-weight:800;font-size:15px}.hint{display:block;color:var(--muted);font-size:12px;margin-top:6px}.image-area{grid-column:1;grid-row:1;background:#fff3d6;border:1px solid var(--line);border-radius:24px;padding:18px;text-align:center}.image-button{display:block;margin:auto;padding:0;border:0;background:transparent;cursor:zoom-in;max-width:100%}.image-button img{display:block;max-width:100%;width:auto;height:480px;object-fit:contain;border-radius:14px;box-shadow:0 8px 26px -15px #79542390}.image-hint{font-size:12px;color:var(--muted);margin:12px 0 0}.controls{display:flex;gap:12px;margin-top:28px}.btn{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:14px;padding:14px 18px;font-weight:800}.primary{background:var(--amber);border-color:var(--amber);flex:1}.secondary{background:var(--cream)}.extras{margin-top:24px;border-top:1px solid var(--line);padding-top:16px;display:flex;gap:20px;align-items:flex-start;justify-content:space-between}.extras details{flex:1;font-size:13px;color:var(--muted)}summary{cursor:pointer}.extras select{display:block;width:100%;margin-top:12px;padding:10px;border:1px solid var(--line);background:var(--cream);border-radius:10px;color:var(--ink);font-size:13px}.support{color:var(--muted);font-size:13px;white-space:nowrap}.detail{margin-top:18px;font-size:13px;color:var(--muted)}.detail p{margin:8px 0 0}dialog{width:min(95vw,800px);max-height:94dvh;padding:16px;background:var(--cream);border:1px solid var(--line);border-radius:18px}dialog::backdrop{background:#241a07b0}.zoom-toolbar{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:12px}.zoom-toolbar button{padding:8px 14px}.zoom-scroll{overflow:auto;max-height:75dvh}.zoom-scroll img{width:100%;min-width:500px;display:block}body:has(dialog[open]){overflow:hidden}[hidden]{display:none!important}
+@media(max-width:760px){.nav{padding:12px 18px}.brand{font-size:18px}.brand img{width:27px;height:27px}main{padding:8px 18px calc(105px + env(safe-area-inset-bottom))}.heading{margin:0 0 18px}h1{font-size:23px}.heading p{font-size:13px}.guide{display:flex;flex-direction:column;gap:16px;align-items:stretch}.copy{display:contents}.step-info{order:0}.count{font-size:12px}.track{margin:8px 0 14px}h2{font-size:23px;margin-bottom:7px}#step-action{font-size:16px}.download{margin-top:12px;padding:10px 16px;font-size:14px}.image-area{order:1;padding:12px;border-radius:20px}.image-button img{height:clamp(290px,43dvh,430px);border-radius:10px}.image-hint{margin-top:8px;font-size:11px}.detail{order:2;margin-top:0}.controls{position:fixed;bottom:0;left:0;right:0;z-index:5;margin:0;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:rgba(255,251,241,.98);border-top:1px solid var(--line)}.controls .btn{font-size:15px;min-height:48px}.extras{margin-top:18px;padding-top:14px;gap:14px}.warning{margin-top:10px;padding:9px 12px;font-size:12px}.zoom-scroll img{min-width:550px}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* One instruction, one image, one forward action */
+body{min-height:100dvh}.nav{max-width:760px;padding:14px 20px}.brand{font-size:17px}.brand img{width:26px;height:26px}main{max-width:760px;padding:12px 20px 24px}.guide{display:flex;flex-direction:column;gap:18px;align-items:stretch}.copy{display:contents}.step-info{order:0;text-align:center}.count{font-size:12px;color:var(--muted);margin-bottom:10px}#step-action{font-size:22px;font-weight:800;line-height:1.4;max-width:560px;margin:auto}.image-area{order:1;padding:0;border:0;background:transparent;border-radius:0}.image-button img{height:clamp(330px,57dvh,600px);border-radius:12px;max-width:100%;box-shadow:0 8px 26px -15px #79542390}.controls{order:2;position:static;max-width:400px;width:100%;margin:0 auto;padding:0;border:0;background:transparent}.controls .btn{min-height:48px;font-size:15px}.download{font-size:13px;padding:9px 15px;margin-top:12px}.warning{max-width:530px;margin:12px auto 0;text-align:left}.back{font-size:12px}
+@media(max-width:760px){main{padding:6px 18px 100px}.guide{gap:16px}#step-action{font-size:19px}.count{margin-bottom:8px}.image-button img{height:clamp(280px,55dvh,530px)}.controls{position:fixed;bottom:0;left:0;right:0;max-width:none;margin:0;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:var(--cream);border-top:1px solid var(--line)}.warning{font-size:12px}.nav{padding:12px 18px}}
+
+/* Readable image and clearly marked action */
+main{max-width:820px}.count{font-size:14px;color:#655437}.step-info{background:white;border:1px solid var(--line);border-radius:18px;padding:18px 20px}#step-action{font-size:24px;font-weight:700;color:#241a07;line-height:1.55}#step-action strong{font-weight:900;background:#ffe19a;padding:0 4px;border-radius:5px}.image-button{width:min(340px,100%)}.image-frame{position:relative;display:block;width:100%}.image-button img{width:100%;height:auto;max-width:none;object-fit:contain;border-radius:12px}.image-help{font-size:12px;color:#655437;margin:8px 0 0}.controls .primary{font-size:16px}.guide{gap:20px}.download{color:#241a07}.image-area{padding-bottom:8px}
+@media(max-width:760px){main{padding:8px 16px 110px}.step-info{padding:14px 16px}.count{font-size:13px;margin-bottom:6px}#step-action{font-size:21px;text-align:left}.image-button{width:min(100%,360px)}.image-button img{height:auto;width:100%}.guide{gap:16px}.controls{padding-left:16px;padding-right:16px}.controls .primary{font-size:16px}}
+
+#target-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+</style>
+</head><body>
+<header><div class="nav"><a class="brand" href="index.html"><img src="assets/img-locket/apple-touch-icon.png" alt="">Locket</a><a class="back" href="index.html">← Trang chủ</a></div></header>
+<main>
+<section class="guide" aria-label="Hướng dẫn từng bước"><div class="copy"><div class="step-info"><div class="count" id="step-badge">Bước 1 / 18</div><div class="track" hidden role="progressbar" aria-label="Tiến độ hướng dẫn" aria-valuemin="1" aria-valuemax="18" aria-valuenow="1"><span id="progress"></span></div><div aria-live="polite" aria-atomic="true"><h2 id="step-title" hidden>Cho phép tải hồ sơ</h2><p id="step-action">Nhấn “Cho phép” trong hộp thoại tải hồ sơ.</p></div><div id="download-area"><a class="download" href="https://ctv.nodns.vn/cai-dns" target="_blank" rel="noopener noreferrer">Tải hồ sơ bằng Safari ↗</a></div></div><p id="step-desc" hidden></p><div class="controls"><button class="btn secondary" id="prev-btn" disabled>← Quay lại</button><button class="btn primary" id="next-btn">Đã làm xong →</button></div></div><div class="image-area"><button class="image-button" id="image-button" aria-label="Phóng to ảnh hướng dẫn"><span class="image-frame"><img id="step-image" src="huong dan image/photo_1_2026-10-05_15-12-52.jpg" alt="Ảnh bước 1: Cho phép tải hồ sơ" draggable="false"><svg id="target-overlay" viewBox="0 0 591 1280" preserveAspectRatio="none" aria-hidden="true"><rect id="target-box" rx="12" fill="none" stroke="#e77700" stroke-width="3" vector-effect="non-scaling-stroke"/></svg></span></button><p class="image-help">Chạm ảnh để phóng to</p></div></section>
+<select id="step-select" hidden aria-label="Chọn bước hướng dẫn"></select></main>
+<dialog id="zoom-dialog" aria-label="Ảnh hướng dẫn phóng to"><div class="zoom-toolbar"><span>Kéo ảnh để xem chi tiết</span><button id="close-zoom" class="btn secondary">Đóng ✕</button></div><div class="zoom-scroll"><img id="zoom-image" alt="Ảnh hướng dẫn phóng to"></div></dialog>
+<script>
+const stepsData = [
+  {
+    "title": "Cho phép tải hồ sơ",
+    "desc": "Trong Safari, khi hộp thoại “Trang web này đang cố gắng tải về một hồ sơ cấu hình” xuất hiện như ảnh, nhấn “Cho phép”.",
+    "action": "Nhấn “Cho phép”.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      395,
+      612,
+      147,
+      61
+    ],
+    "imageNumber": 1
+  },
+  {
+    "title": "Đóng thông báo đã tải",
+    "desc": "Khi thấy thông báo “Đã tải về hồ sơ”, nhấn “Đóng”. Thông báo cho biết bạn cần xem lại hồ sơ trong ứng dụng Cài đặt để cài đặt.",
+    "action": "Nhấn “Đóng”.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      244,
+      698,
+      105,
+      56
+    ],
+    "imageNumber": 2
+  },
+  {
+    "title": "Mở ứng dụng Cài đặt",
+    "desc": "Trong Thư viện ứng dụng, nhấn biểu tượng bánh răng “Cài đặt” trong nhóm “Tiện ích”, như ảnh minh họa.",
+    "action": "Mở “Cài đặt” (biểu tượng bánh răng).",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      320,
+      531,
+      113,
+      113
+    ],
+    "imageNumber": 3
+  },
+  {
+    "title": "Chọn Cài đặt chung",
+    "desc": "Trong ứng dụng Cài đặt, nhấn dòng “Cài đặt chung” ở phía dưới mục VPN.",
+    "action": "Chọn “Cài đặt chung”.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      30,
+      1066,
+      531,
+      64
+    ],
+    "imageNumber": 4
+  },
+  {
+    "title": "Tìm Quản lý VPN & Thiết bị",
+    "desc": "Tiếp tục cuộn xuống. Dòng “Quản lý VPN & Thiết bị” xuất hiện gần cuối màn hình, bên dưới “Nhà cung cấp TV”.",
+    "action": "Tìm “Quản lý VPN & Thiết bị” ở gần cuối trang.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      30,
+      1199,
+      531,
+      63
+    ],
+    "imageNumber": 6
+  },
+  {
+    "title": "Mở Quản lý VPN & Thiết bị",
+    "desc": "Nhấn “Quản lý VPN & Thiết bị”, nằm giữa “Nhà cung cấp TV” và “Pháp lý & Quy định”, như ảnh.",
+    "action": "Chọn “Quản lý VPN & Thiết bị”.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      30,
+      704,
+      531,
+      65
+    ],
+    "imageNumber": 7
+  },
+  {
+    "title": "Chọn hồ sơ Locket Gold",
+    "desc": "Trong “Quản lý VPN & Thiết bị”, nhấn “Locket Gold” của “Local Research” ở phần “HỒ SƠ ĐÃ TẢI VỀ”.",
+    "action": "Chọn hồ sơ “Locket Gold”.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      30,
+      502,
+      531,
+      87
+    ],
+    "imageNumber": 8
+  },
+  {
+    "title": "Cài hồ sơ Locket Gold",
+    "desc": "Màn hình “Cài đặt hồ sơ” hiển thị hồ sơ “Locket Gold”, gồm chứng nhận và cài đặt DNS. Nhấn “Cài đặt” ở góc trên bên phải.",
+    "action": "Nhấn “Cài đặt” ở góc trên bên phải.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      467,
+      103,
+      105,
+      53
+    ],
+    "imageNumber": 9
+  },
+  {
+    "title": "Nhập mật mã iPhone",
+    "desc": "Ở màn hình “Nhập mật mã”, nhập mật mã mở khóa iPhone của bạn để tiếp tục cài hồ sơ.",
+    "action": "Nhập mật mã mở khóa iPhone.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": null,
+    "imageNumber": 10
+  },
+  {
+    "title": "Đọc cảnh báo cài đặt",
+    "desc": "Màn hình cảnh báo nêu chứng nhận “LocketProxy CA”, việc lưu lượng mạng có thể được lọc hoặc theo dõi bằng máy chủ DNS và hồ sơ chưa xác thực. Đọc nội dung này; nếu đồng ý cài, nhấn “Cài đặt” ở góc trên bên phải.",
+    "action": "Nhấn “Cài đặt” ở góc trên bên phải.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      467,
+      103,
+      105,
+      53
+    ],
+    "imageNumber": 11
+  },
+  {
+    "title": "Xác nhận Cài đặt",
+    "desc": "Trong bảng xác nhận xuất hiện ở cuối màn hình “Cảnh báo”, nhấn nút “Cài đặt” màu đỏ để xác nhận, hoặc “Hủy” để dừng.",
+    "action": "Nhấn “Cài đặt” trong bảng bên dưới.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      19,
+      1040,
+      553,
+      80
+    ],
+    "imageNumber": 12
+  },
+  {
+    "title": "Hoàn thành cài hồ sơ",
+    "desc": "Khi màn hình chuyển sang “Đã cài đặt hồ sơ” và hiển thị “Locket Gold”, nhấn “Xong” ở góc trên bên phải.",
+    "action": "Nhấn “Xong” ở góc trên bên phải.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      488,
+      103,
+      85,
+      53
+    ],
+    "imageNumber": 13
+  },
+  {
+    "title": "Kiểm tra hồ sơ và DNS",
+    "desc": "Màn hình “Quản lý VPN & Thiết bị” đã hiển thị “DNS — Locket Gold DNS” và hồ sơ “Locket Gold” trong “HỒ SƠ CẤU HÌNH”. Nhấn “Quay lại” để về Cài đặt chung, rồi mở “Giới thiệu”.",
+    "action": "Kiểm tra có “Locket Gold DNS”. Sau đó về Cài đặt chung → Giới thiệu.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      30,
+      335,
+      531,
+      66
+    ],
+    "imageNumber": 14
+  },
+  {
+    "title": "Cuộn xuống trong Giới thiệu",
+    "desc": "Bạn đang ở màn hình “Giới thiệu” như ảnh. Cuộn xuống cuối trang để tìm phần cài đặt tin cậy chứng nhận.",
+    "action": "Vuốt lên đến cuối trang “Giới thiệu”.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": null,
+    "imageNumber": 15
+  },
+  {
+    "title": "Mở cài đặt tin cậy",
+    "desc": "Nhấn “Cài đặt tin cậy chứng nhận” ở cuối màn hình “Giới thiệu”, bên dưới các thông tin SIM.",
+    "action": "Chọn “Cài đặt tin cậy chứng nhận”.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      30,
+      1098,
+      531,
+      64
+    ],
+    "imageNumber": 16
+  },
+  {
+    "title": "Bật LocketProxy CA",
+    "desc": "Trong “Cài đặt tin cậy chứng nhận”, tìm đúng dòng “LocketProxy CA” rồi bật công tắc đang màu xám. Hai chứng nhận khác trong ảnh không phải mục cần thao tác ở bước này.",
+    "action": "Bật công tắc “LocketProxy CA”.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      449,
+      412,
+      101,
+      64
+    ],
+    "imageNumber": 17
+  },
+  {
+    "title": "Xác nhận tin cậy chứng nhận",
+    "desc": "Hộp thoại “Chứng nhận gốc” cảnh báo rằng bật chứng nhận cho các trang web sẽ cho phép các bên thứ ba xem dữ liệu riêng tư được gửi đến trang web. Nếu đồng ý, nhấn “Tiếp tục”; chọn “Hủy” để dừng.",
+    "action": "Nhấn “Tiếp tục”.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      310,
+      732,
+      183,
+      55
+    ],
+    "imageNumber": 18
+  },
+  {
+    "title": "Kiểm tra LocketProxy CA đã bật",
+    "desc": "Kiểm tra công tắc bên cạnh “LocketProxy CA” đã chuyển sang màu xanh như ảnh. Đây là bước cuối của chuỗi ảnh hướng dẫn.",
+    "action": "Công tắc “LocketProxy CA” màu xanh là hoàn tất.",
+    "imageSize": [
+      591,
+      1280
+    ],
+    "target": [
+      449,
+      412,
+      101,
+      64
+    ],
+    "imageNumber": 19
+  }
+];
+
+const image=document.getElementById('step-image'),prev=document.getElementById('prev-btn'),next=document.getElementById('next-btn'),select=document.getElementById('step-select'),dialog=document.getElementById('zoom-dialog');let currentIndex=0;
+stepsData.forEach((step,i)=>{const option=document.createElement('option');option.value=i;option.textContent=`${i+1}. ${step.title}`;select.append(option)});
+function updateContent(index){currentIndex=Math.max(0,Math.min(index,stepsData.length-1));const step=stepsData[currentIndex];document.getElementById('step-title').textContent=step.title;const action=document.getElementById('step-action');action.replaceChildren();step.action.split(/(“[^”]+”)/g).forEach(part=>{const node=document.createElement(part.startsWith('“')?'strong':'span');node.textContent=part;action.append(node)});const overlay=document.getElementById('target-overlay');overlay.toggleAttribute('hidden',!step.target);overlay.setAttribute('viewBox',`0 0 ${step.imageSize[0]} ${step.imageSize[1]}`);if(!step.target)document.getElementById('target-box').removeAttribute('width');if(step.target){const box=document.getElementById('target-box');['x','y','width','height'].forEach((name,i)=>box.setAttribute(name,step.target[i]));}document.getElementById('step-desc').textContent=step.desc;document.getElementById('step-badge').textContent=`Bước ${currentIndex+1} / ${stepsData.length}`;image.src=`huong dan image/photo_${step.imageNumber}_2026-10-05_15-12-52.jpg`;image.alt=`Ảnh bước ${currentIndex+1}: ${step.title}`;prev.disabled=currentIndex===0;next.disabled=currentIndex===stepsData.length-1;next.textContent=currentIndex===stepsData.length-1?'Bước cuối ✓':'Đã làm xong →';select.value=currentIndex;document.getElementById('progress').style.width=`${(currentIndex+1)/stepsData.length*100}%`;document.querySelector('.track').setAttribute('aria-valuenow',currentIndex+1);document.getElementById('download-area').hidden=currentIndex!==0;if(currentIndex<stepsData.length-1){const preload=new Image();preload.src=`huong dan image/photo_${stepsData[currentIndex+1].imageNumber}_2026-10-05_15-12-52.jpg`;}}
+prev.addEventListener('click',()=>updateContent(currentIndex-1));next.addEventListener('click',()=>updateContent(currentIndex+1));select.addEventListener('change',()=>{updateContent(Number(select.value));document.getElementById('step-badge').scrollIntoView({block:'start'});});
+document.getElementById('image-button').addEventListener('click',()=>{document.getElementById('zoom-image').src=image.src;document.getElementById('zoom-image').alt=image.alt;dialog.showModal()});document.getElementById('close-zoom').addEventListener('click',()=>dialog.close());dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});document.addEventListener('keydown',e=>{if(dialog.open||/SELECT|INPUT|TEXTAREA/.test(e.target.tagName)||e.altKey||e.ctrlKey||e.metaKey)return;if(e.key==='ArrowRight'){e.preventDefault();updateContent(currentIndex+1)}if(e.key==='ArrowLeft'){e.preventDefault();updateContent(currentIndex-1)}});updateContent(0);
+</script></body></html>
