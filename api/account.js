@@ -122,8 +122,11 @@ module.exports = async function handler(req, res) {
 
     if (req.method === 'GET') {
       const ctx = await identity(req, { allowUnmapped: true });
+      if (!ctx.isAdmin && ctx.token?.firebase?.sign_in_provider === 'google.com') {
+        throw error('Chỉ tài khoản Google Admin mới được phép đăng nhập bằng Google. CTV vui lòng đăng ký chờ Admin duyệt qua Email.', 403);
+      }
       if (!ctx.username) {
-        return res.status(200).json({ ok: true, setupRequired: true, verifiedEmail: ctx.email });
+        throw error('Tài khoản chưa được Admin kích hoạt. Vui lòng đăng ký chờ Admin duyệt qua Email.', 403);
       }
       const [walletSnap, ordersSnap, depositsSnap] = await Promise.all([
         ctx.db.ref(`live_deposits_v1/accounts/${ctx.uid}`).once('value'),
@@ -269,21 +272,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'register') {
-      const ctx = await verifiedIdentity(req, true);
-      const username = String(req.body?.username || '').trim().toLowerCase();
-      const fullname = String(req.body?.fullname || '').trim();
-      const zalo = clean(req.body?.zalo || '', 25);
-      const profile = await createAccount(ctx, username, fullname);
-      const db = ctx.sdk.database();
-      await db.ref(`users/${username}`).update({
-        role: 'Cộng Tác Viên',
-        zalo,
-      });
-      await db.ref(`live_deposits_v1/accounts/${ctx.uid}`).transaction((cur) => {
-        if (cur) return cur;
-        return { uid: ctx.uid, username, availableVnd: 0, heldVnd: 0, totalDepositedVnd: 0, createdAt: now() };
-      });
-      return res.status(201).json({ ok: true, profile: { ...profile, role: 'Cộng Tác Viên', zalo } });
+      throw error('Tính năng tự đăng ký trực tiếp đã tắt. Vui lòng gửi yêu cầu đăng ký để Admin duyệt qua Email.', 403);
     }
 
     if (action === 'admin_approve') {
