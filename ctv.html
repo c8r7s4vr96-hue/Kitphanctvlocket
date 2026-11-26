@@ -266,13 +266,14 @@
         <div class="space-y-2">
           <label class="block text-xs font-bold text-zinc-300">Chọn nhanh số tiền nạp (50.000đ – 1.000.000đ)</label>
           <div class="grid grid-cols-3 gap-2">
-            <button type="button" data-amt="50000" class="amt-btn py-2.5 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold hover:border-amber-400">50.000đ</button>
-            <button type="button" data-amt="100000" class="amt-btn active py-2.5 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold hover:border-amber-400">100.000đ</button>
-            <button type="button" data-amt="200000" class="amt-btn py-2.5 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold hover:border-amber-400">200.000đ</button>
-            <button type="button" data-amt="500000" class="amt-btn py-2.5 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold hover:border-amber-400">500.000đ</button>
-            <button type="button" data-amt="1000000" class="amt-btn py-2.5 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold hover:border-amber-400 col-span-2">1.000.000đ</button>
+            <button type="button" data-amt="50000" class="amt-btn py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold hover:border-amber-400 flex flex-col items-center leading-tight"><span>50.000đ</span><span class="text-[10px] font-semibold text-zinc-400">+0%</span></button>
+            <button type="button" data-amt="100000" class="amt-btn active py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold hover:border-amber-400 flex flex-col items-center leading-tight"><span>100.000đ</span><span class="text-[10px] font-semibold text-zinc-400">+0%</span></button>
+            <button type="button" data-amt="200000" class="amt-btn py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold hover:border-amber-400 flex flex-col items-center leading-tight"><span>200.000đ</span><span class="text-[10px] font-extrabold text-emerald-400">Tặng +5%</span></button>
+            <button type="button" data-amt="500000" class="amt-btn py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold hover:border-amber-400 flex flex-col items-center leading-tight"><span>500.000đ</span><span class="text-[10px] font-extrabold text-emerald-400">Tặng +20%</span></button>
+            <button type="button" data-amt="1000000" class="amt-btn py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-xs font-bold hover:border-amber-400 col-span-2 flex flex-col items-center leading-tight"><span>1.000.000đ</span><span class="text-[10px] font-extrabold text-amber-400">Tặng +35%</span></button>
           </div>
           <input id="deposit-amount" type="number" inputmode="numeric" min="50000" max="1000000" step="10000" value="100000" class="w-full px-3.5 py-3 sm:py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-base sm:text-sm text-white focus:outline-none focus:border-amber-400">
+          <div id="deposit-bonus-preview" class="rounded-xl bg-emerald-950/30 border border-emerald-500/30 px-3 py-2 text-[11px] text-emerald-200 flex flex-wrap items-center justify-between gap-1"></div>
           <p id="deposit-range-msg" class="text-[11px] text-zinc-400">Hợp lệ: từ 50.000đ đến 1.000.000đ / giao dịch.</p>
         </div>
 
@@ -518,6 +519,22 @@
 
   $('logout-btn').addEventListener('click', () => auth.signOut());
 
+  function calcBonus(amt) {
+    const tiers = Array.isArray(walletMeta.bonusTiers) && walletMeta.bonusTiers.length
+      ? walletMeta.bonusTiers
+      : [
+          { minVnd: 1000000, bonusPercent: 35 },
+          { minVnd: 500000, bonusPercent: 20 },
+          { minVnd: 200000, bonusPercent: 5 },
+          { minVnd: 50000, bonusPercent: 0 },
+        ];
+    const sorted = [...tiers].sort((a, b) => b.minVnd - a.minVnd);
+    const tier = sorted.find((t) => amt >= t.minVnd);
+    const pct = tier ? Number(tier.bonusPercent || 0) : 0;
+    const bonusVnd = Math.round((amt * pct) / 100);
+    return { bonusPercent: pct, bonusVnd, creditedAmount: amt + bonusVnd };
+  }
+
   function updateQr() {
     let rawVal = Number($('deposit-amount').value || 0);
     let amt = rawVal;
@@ -530,7 +547,14 @@
       amt = Math.min(max, Math.max(min, amt || min));
     } else {
       msg.className = 'text-[11px] text-zinc-400';
-      msg.textContent = `Hợp lệ: từ ${min.toLocaleString('vi-VN')}đ đến ${max.toLocaleString('vi-VN')}đ / giao dịch.`;
+      msg.textContent = `Ưu đãi: 50k +0% · 200k +5% · 500k +20% · 1.000k +35%`;
+    }
+    const bonus = calcBonus(amt);
+    const preview = $('deposit-bonus-preview');
+    if (preview) {
+      preview.textContent = bonus.bonusPercent > 0
+        ? `Nạp ${amt.toLocaleString('vi-VN')}đ + ưu đãi ${bonus.bonusPercent}% (+${bonus.bonusVnd.toLocaleString('vi-VN')}đ) → Thực nhận: ${bonus.creditedAmount.toLocaleString('vi-VN')}đ`
+        : `Nạp ${amt.toLocaleString('vi-VN')}đ (+0%) → Thực nhận: ${amt.toLocaleString('vi-VN')}đ · Nạp từ 200k để nhận +5% đến +35%!`;
     }
     document.querySelectorAll('.amt-btn').forEach((b) => {
       b.classList.toggle('active', Number(b.getAttribute('data-amt')) === rawVal);
@@ -601,7 +625,11 @@
       left.innerHTML = '';
       const t = document.createElement('div');
       t.className = 'font-bold text-emerald-400';
-      t.textContent = `+${Number(d.amount || 0).toLocaleString('vi-VN')}đ`;
+      const baseAmt = Number(d.amount || 0);
+      const credited = Number(d.creditedAmount || baseAmt);
+      t.textContent = d.bonusVnd > 0
+        ? `+${credited.toLocaleString('vi-VN')}đ (nạp ${baseAmt.toLocaleString('vi-VN')}đ + ${d.bonusPercent}%)`
+        : `+${baseAmt.toLocaleString('vi-VN')}đ`;
       const s = document.createElement('div');
       s.className = 'text-zinc-400';
       s.textContent = d.content || 'SePay MB Bank';
