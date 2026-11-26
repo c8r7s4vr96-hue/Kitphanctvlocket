@@ -153,6 +153,15 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ ok: true, requests });
     }
 
+    if (req.method === 'GET' && queryAction === 'admin_webhook_logs') {
+      const ctx = await identity(req, { adminOnly: true });
+      const snap = await ctx.db.ref('sepay_webhook_logs').limitToLast(40).once('value');
+      const logs = Object.values(snap.val() || {})
+        .filter((x) => x && typeof x === 'object')
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      return res.status(200).json({ ok: true, logs });
+    }
+
     if (req.method === 'GET') {
       const ctx = await identity(req, { allowUnmapped: true });
       if (!ctx.isAdmin && ctx.token?.firebase?.sign_in_provider === 'google.com') {
@@ -191,6 +200,119 @@ module.exports = async function handler(req, res) {
     if (action === 'login_username') {
       const { signInLinkedUsername } = require('../lib/username-auth');
       return res.status(200).json(await signInLinkedUsername(req, { firebase }));
+    }
+
+    if (action === 'forgot_password') {
+      const { rateLimit } = require('../lib/username-auth');
+      const identifier = String(req.body?.identifier || '').trim().toLowerCase();
+      if (!identifier || identifier.length < 3 || identifier.length > 160) {
+        throw error('Vui lòng nhập Username hoặc Email CTV hợp lệ.', 422);
+      }
+
+      const sdk = firebase();
+      const db = sdk.database();
+      await rateLimit(db, req, identifier);
+
+      let target = null;
+      if (EMAIL.test(identifier)) {
+        const usersSnap = await db.ref('users').orderByChild('email').equalTo(identifier).once('value');
+        const matchedUsers = Object.values(usersSnap.val() || {}).filter((u) => u && typeof u === 'object' && u.username);
+        if (matchedUsers.length > 0) {
+          const u = matchedUsers[0];
+          target = {
+            requestId: null,
+            username: String(u.username).toLowerCase(),
+            fullname: u.fullname || u.username,
+            zalo: u.zalo || '',
+            email: identifier,
+          };
+        } else {
+          const reqSnap = await db.ref('ctv_registration_requests').orderByChild('email').equalTo(identifier).once('value');
+          const reqs = Object.values(reqSnap.val() || {}).filter((r) => r && typeof r === 'object').sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          const latest = reqs[0];
+          if (latest) {
+            if (latest.status === 'pending') throw error('Tài khoản đang chờ Admin duyệt. Vui lòng đợi Admin gửi email kích hoạt.', 403);
+            if (latest.status === 'rejected') throw error('Yêu cầu đăng ký của email này đã bị từ chối.', 403);
+            target = {
+              requestId: latest.id || null,
+              username: String(latest.username).toLowerCase(),
+              fullname: latest.fullname || latest.username,
+              zalo: latest.zalo || '',
+              email: identifier,
+            };
+          }
+        }
+      } else if (USERNAME.test(identifier)) {
+        if (identifier === configuredAdminUsername()) {
+          throw error('Admin chính vui lòng đăng nhập bằng nút Google.', 403);
+        }
+        const userSnap = await db.ref(`users/${identifier}`).once('value');
+        const u = userSnap.val();
+        if (userSnap.exists() && u?.email) {
+          target = {
+            requestId: null,
+            username: identifier,
+            fullname: u.fullname || identifier,
+            zalo: u.zalo || '',
+            email: String(u.email).trim().toLowerCase(),
+          };
+        } else {
+          const reqSnap = await db.ref('ctv_registration_requests').orderByChild('username').equalTo(identifier).once('value');
+          const reqs = Object.values(reqSnap.val() || {}).filter((r) => r && typeof r === 'object').sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          const latest = reqs[0];
+          if (latest) {
+            if (latest.status === 'pending') throw error('Tài khoản đang chờ Admin duyệt. Vui lòng đợi Admin gửi email kích hoạt.', 403);
+            if (latest.status === 'rejected') throw error('Yêu cầu đăng ký của username này đã bị từ chối.', 403);
+            target = {
+              requestId: latest.id || null,
+              username: identifier,
+              fullname: latest.fullname || identifier,
+              zalo: latest.zalo || '',
+              email: String(latest.email || '').trim().toLowerCase(),
+            };
+          }
+        }
+      } else {
+        throw error('Username hoặc Email không đúng định dạng.', 422);
+      }
+
+      if (!target || !EMAIL.test(target.email)) {
+        throw error('Không tìm thấy tài khoản CTV đã được duyệt với thông tin này.', 404);
+      }
+
+      const rawToken = crypto.randomBytes(32).toString('hex');
+      const tHash = tokenHash(rawToken);
+      const expiresAt = now() + SEVEN_DAYS_MS;
+
+      await db.ref(`ctv_activation_tokens/${tHash}`).set({
+        requestId: target.requestId,
+        username: target.username,
+        fullname: target.fullname,
+        zalo: target.zalo,
+        email: target.email,
+        expiresAt,
+        used: false,
+        createdAt: now(),
+      });
+
+      const baseUrl = baseUrlFromReq(req);
+      const activateUrl = `${baseUrl}/ctv.html?activate=${rawToken}`;
+      const mailRes = await sendActivationEmail({
+        to: target.email,
+        username: target.username,
+        fullname: target.fullname,
+        activateUrl,
+        baseUrl,
+      });
+
+      if (!mailRes.sent) {
+        throw error('Không thể gửi email đặt lại mật khẩu lúc này. Vui lòng liên hệ Admin qua Zalo.', 502);
+      }
+
+      return res.status(200).json({
+        ok: true,
+        message: `Đã gửi link đặt lại mật khẩu tới email ${target.email}. Vui lòng kiểm tra hộp thư (kể cả mục Spam).`,
+      });
     }
 
     if (action === 'request_register') {
@@ -255,9 +377,12 @@ module.exports = async function handler(req, res) {
       if (rec.used) throw error('Link kích hoạt đã được sử dụng.', 409);
       if (!rec.expiresAt || Date.now() > rec.expiresAt) throw error('Link kích hoạt đã hết hạn (7 ngày).', 410);
 
+      const emailNorm = String(rec.email || '').trim().toLowerCase();
+      if (!EMAIL.test(emailNorm)) throw error('Email kích hoạt không hợp lệ.', 422);
+
       let userRecord;
       try {
-        userRecord = await sdk.auth().getUserByEmail(rec.email);
+        userRecord = await sdk.auth().getUserByEmail(emailNorm);
         userRecord = await sdk.auth().updateUser(userRecord.uid, {
           password,
           displayName: rec.fullname || rec.username,
@@ -267,7 +392,7 @@ module.exports = async function handler(req, res) {
       } catch (e) {
         if (e?.code === 'auth/user-not-found') {
           userRecord = await sdk.auth().createUser({
-            email: rec.email,
+            email: emailNorm,
             password,
             displayName: rec.fullname || rec.username,
             emailVerified: true,
@@ -284,7 +409,7 @@ module.exports = async function handler(req, res) {
       await db.ref(`users/${username}`).update({
         username,
         fullname: clean(rec.fullname, 90) || username,
-        email: rec.email,
+        email: emailNorm,
         zalo: clean(rec.zalo, 25),
         role: 'Cộng Tác Viên',
         authUid: uid,
@@ -343,7 +468,7 @@ module.exports = async function handler(req, res) {
       });
 
       await reqRef.update({
-        status: 'approved',
+        status: reqData.status === 'activated' ? 'activated' : 'approved',
         approvedAt: now(),
         approvedBy: ctx.email,
         emailSent: mailRes.sent,
