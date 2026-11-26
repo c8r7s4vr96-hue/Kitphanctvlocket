@@ -35,13 +35,10 @@ function baseUrlFromReq(req) {
 }
 
 async function sendActivationEmail({ to, username, fullname, activateUrl, baseUrl }) {
-  const apiKey = String(process.env.RESEND_API_KEY || '').trim();
-  if (!apiKey) return { sent: false, reason: 'RESEND_API_KEY_NOT_CONFIGURED' };
-
-  const from = String(process.env.EMAIL_FROM || 'Locket KitPhan <onboarding@resend.dev>').trim();
   const safeUser = escapeHtml(username);
   const safeUrl = escapeHtml(activateUrl);
   const logoUrl = escapeHtml(`${baseUrl}/assets/img-locket/apple-touch-icon.png`);
+  const subject = 'Kích hoạt tài khoản CTV Locket KitPhan';
 
   const html = `
   <div style="background:#f8fafc;padding:36px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;">
@@ -74,6 +71,33 @@ async function sendActivationEmail({ to, username, fullname, activateUrl, baseUr
     </div>
   </div>`;
 
+  // Option 1: Gmail SMTP (no custom domain required, sends to any email)
+  const gmailUser = String(process.env.GMAIL_USER || '').trim();
+  const gmailPass = String(process.env.GMAIL_APP_PASSWORD || '').replace(/\s+/g, '').trim();
+  if (gmailUser && gmailPass) {
+    try {
+      const nodemailer = require('nodemailer');
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: gmailUser, pass: gmailPass },
+      });
+      const info = await transporter.sendMail({
+        from: `Locket KitPhan <${gmailUser}>`,
+        to,
+        subject,
+        html,
+      });
+      return { sent: true, id: info?.messageId || null };
+    } catch (e) {
+      return { sent: false, reason: e?.message || 'GMAIL_SMTP_ERROR' };
+    }
+  }
+
+  // Option 2: Resend API
+  const apiKey = String(process.env.RESEND_API_KEY || '').trim();
+  if (!apiKey) return { sent: false, reason: 'RESEND_API_KEY_NOT_CONFIGURED' };
+
+  const from = String(process.env.EMAIL_FROM || 'Locket KitPhan <onboarding@resend.dev>').trim();
   const resp = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -83,7 +107,7 @@ async function sendActivationEmail({ to, username, fullname, activateUrl, baseUr
     body: JSON.stringify({
       from,
       to: [to],
-      subject: 'Kích hoạt tài khoản CTV Locket KitPhan',
+      subject,
       html,
     }),
     signal: AbortSignal.timeout(10000),
