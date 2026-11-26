@@ -1,6 +1,7 @@
 'use strict';
 const { identity } = require('../lib/secure-accounts');
 const { jsonError } = require('../lib/shop-common');
+const { DEPOSIT_BONUS_TIERS } = require('../lib/deposit-bonus');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'private, no-store');
@@ -34,6 +35,7 @@ module.exports = async function handler(req, res) {
       maxDepositVnd,
       availableVnd,
       totalDepositedVnd,
+      bonusTiers: DEPOSIT_BONUS_TIERS,
       deposits,
     });
   } catch (e) {
