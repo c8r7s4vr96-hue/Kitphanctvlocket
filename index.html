@@ -139,7 +139,7 @@
         <input id="kp-m-login-id" class="kp-input" required placeholder="Username hoặc Email CTV">
         <input id="kp-m-login-pass" class="kp-input" type="password" required placeholder="Mật khẩu">
         <button type="submit" class="kp-btn kp-btn-gold" style="min-height:42px;">Đăng nhập CTV</button>
-        <button type="button" id="kp-m-google" class="kp-btn kp-btn-dark" style="min-height:40px;">Tiếp tục với Google</button>
+        <button type="button" id="kp-m-google" class="kp-btn kp-btn-dark" style="min-height:40px;">Đăng nhập Admin (Google)</button>
       </form>
       <form id="kp-m-reg-form" style="display:none;flex-direction:column;gap:10px;">
         <input id="kp-m-reg-name" class="kp-input" required placeholder="Họ và tên CTV">
@@ -462,7 +462,11 @@
 
   $('kp-m-google').addEventListener('click', async () => {
     try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); await syncAccount(); $('kp-ctv-modal').classList.remove('open'); }
-    catch (err) { $('kp-m-msg').textContent = err.message; }
+    catch (err) {
+      await auth.signOut().catch(() => {});
+      $('kp-m-msg').style.color = '#f87171';
+      $('kp-m-msg').textContent = err.message;
+    }
   });
   $('kp-m-copy-stk').addEventListener('click', async () => {
     await copyStr(walletMeta.accountNumber);
