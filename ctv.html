@@ -824,8 +824,10 @@
       $('admin-requests-section').classList.add('hidden');
     }
 
-    const w = await apiFetch('/api/wallet');
-    walletMeta = w;
+    try {
+      const w = await apiFetch('/api/wallet');
+      walletMeta = w;
+    } catch {}
     updateQr();
     startWalletPolling();
     if (!packages.length) void loadPackages();
