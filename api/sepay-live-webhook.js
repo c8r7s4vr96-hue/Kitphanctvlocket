@@ -24,30 +24,38 @@ async function readRawBody(req) {
   return Buffer.alloc(0);
 }
 
-function timingSafeHexMatch(expectedHex, candidate) {
-  const clean = String(candidate || '').trim().replace(/^sha256=/i, '').toLowerCase();
-  if (!/^[a-f0-9]{64}$/.test(clean)) return false;
-  return crypto.timingSafeEqual(Buffer.from(expectedHex, 'hex'), Buffer.from(clean, 'hex'));
+function timingSafeSigMatch(secret, rawBody, candidate) {
+  const clean = String(candidate || '').trim().replace(/^sha256=/i, '');
+  if (!clean) return false;
+  const hmac = crypto.createHmac('sha256', secret).update(rawBody);
+  if (/^[a-f0-9]{64}$/i.test(clean)) {
+    return crypto.timingSafeEqual(hmac.digest(), Buffer.from(clean, 'hex'));
+  }
+  const expectedB64 = hmac.digest('base64');
+  const a = Buffer.from(expectedB64, 'utf8');
+  const b = Buffer.from(clean, 'utf8');
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
 function verifySepayHmac(req, rawBody) {
   const secret = String(process.env.SEPAY_LIVE_WEBHOOK_SECRET || '').trim();
   if (!secret) throw error('Webhook secret chưa được cấu hình.', 503);
 
-  const expectedHex = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
   const sigHeader =
     req.headers['x-sepay-signature'] ||
     req.headers['x-webhook-signature'] ||
     req.headers['x-signature'] ||
     '';
 
-  if (timingSafeHexMatch(expectedHex, sigHeader)) return true;
+  if (timingSafeSigMatch(secret, rawBody, sigHeader)) return true;
 
   const auth = String(req.headers.authorization || '').trim();
-  const bearer = auth.replace(/^(Bearer|Apikey)\s+/i, '').trim();
+  const bearer = auth.replace(/^(Bearer|Apikey|Api-Key)\s+/i, '').trim();
+  const apiKeyHeader = String(req.headers['x-api-key'] || '').trim();
+  const candidateKey = bearer || apiKeyHeader;
   const secretBuf = Buffer.from(secret, 'utf8');
-  const bearerBuf = Buffer.from(bearer, 'utf8');
-  if (bearer && bearerBuf.length === secretBuf.length && crypto.timingSafeEqual(secretBuf, bearerBuf)) {
+  const candBuf = Buffer.from(candidateKey, 'utf8');
+  if (candidateKey && candBuf.length === secretBuf.length && crypto.timingSafeEqual(secretBuf, candBuf)) {
     return true;
   }
 
