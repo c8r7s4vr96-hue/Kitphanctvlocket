@@ -71,13 +71,25 @@ module.exports = async function handler(req, res) {
 
       const priceVnd = pkg.priceVnd;
       const walletRef = ctx.db.ref(`live_deposits_v1/accounts/${ctx.uid}`);
+      const preSnap = await walletRef.once('value');
+      const preWallet = preSnap.val();
+      const preAvail = Number(preWallet?.availableVnd || 0);
+      if (!preSnap.exists() || preAvail < priceVnd) {
+        throw error(`Số dư ví CTV không đủ (cần ${priceVnd.toLocaleString('vi-VN')}đ, hiện có ${preAvail.toLocaleString('vi-VN')}đ). Vui lòng nạp thêm!`, 402);
+      }
+
       const holdTx = await walletRef.transaction((cur) => {
-        const avail = Number(cur?.availableVnd || 0);
+        // Firebase RTDB transaction() may invoke updateFn(null) on its first local pass;
+        // returning a probe object forces RTDB to fetch the real server value instead of aborting.
+        if (cur === null) {
+          return { uid: ctx.uid, username: ctx.username, _probe: Date.now() };
+        }
+        const avail = Number(cur.availableVnd || 0);
         if (avail < priceVnd) return undefined;
         return {
           ...cur,
           availableVnd: avail - priceVnd,
-          heldVnd: Number(cur?.heldVnd || 0) + priceVnd,
+          heldVnd: Number(cur.heldVnd || 0) + priceVnd,
           updatedAt: Date.now(),
         };
       });
