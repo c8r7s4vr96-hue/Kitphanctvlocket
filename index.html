@@ -151,15 +151,16 @@
         <button type="submit" class="kp-btn kp-btn-gold" style="min-height:42px;">Gửi yêu cầu đăng ký CTV</button>
       </form>
       <div id="kp-m-deposit-box" style="display:none;flex-direction:column;gap:10px;">
-        <div style="font-size:12px;color:#a1a1aa;">Nạp tiền tự động MB Bank SePay (50.000đ – 1.000.000đ):</div>
+        <div style="font-size:12px;color:#a1a1aa;">Nạp tự động SePay (50k +0% · 200k +5% · 500k +20% · 1M +35%):</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
           <button type="button" class="kp-btn kp-btn-dark" onclick="window.kpSetDep(50000)">50k</button>
           <button type="button" class="kp-btn kp-btn-dark" onclick="window.kpSetDep(100000)">100k</button>
-          <button type="button" class="kp-btn kp-btn-dark" onclick="window.kpSetDep(200000)">200k</button>
-          <button type="button" class="kp-btn kp-btn-dark" onclick="window.kpSetDep(500000)">500k</button>
-          <button type="button" class="kp-btn kp-btn-dark" style="grid-column:span 2" onclick="window.kpSetDep(1000000)">1.000.000đ</button>
+          <button type="button" class="kp-btn kp-btn-dark" onclick="window.kpSetDep(200000)">200k (+5%)</button>
+          <button type="button" class="kp-btn kp-btn-dark" onclick="window.kpSetDep(500000)">500k (+20%)</button>
+          <button type="button" class="kp-btn kp-btn-dark" style="grid-column:span 2" onclick="window.kpSetDep(1000000)">1.000.000đ (+35%)</button>
         </div>
         <input id="kp-m-dep-amt" class="kp-input" type="number" inputmode="numeric" min="50000" max="1000000" step="10000" value="100000">
+        <div id="kp-m-dep-bonus" style="font-size:11px;color:#34d399;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:8px 10px;"></div>
         <div style="background:#fff;padding:10px;border-radius:14px;width:min(200px,60vw);margin:0 auto;">
           <img id="kp-m-qr" alt="QR MB Bank" style="width:100%;display:block;border-radius:8px;">
         </div>
@@ -288,6 +289,14 @@
     const min = walletMeta.minDepositVnd || 50000, max = walletMeta.maxDepositVnd || 1000000;
     const clamped = Math.min(max, Math.max(min, Number(amt) || min));
     $('kp-m-dep-amt').value = clamped;
+    const pct = clamped >= 1000000 ? 35 : clamped >= 500000 ? 20 : clamped >= 200000 ? 5 : 0;
+    const bonusVnd = Math.round((clamped * pct) / 100);
+    const total = clamped + bonusVnd;
+    if ($('kp-m-dep-bonus')) {
+      $('kp-m-dep-bonus').textContent = pct > 0
+        ? `Nạp ${clamped.toLocaleString('vi-VN')}đ + ưu đãi ${pct}% (+${bonusVnd.toLocaleString('vi-VN')}đ) → Thực nhận: ${total.toLocaleString('vi-VN')}đ`
+        : `Nạp ${clamped.toLocaleString('vi-VN')}đ (+0%) → Thực nhận: ${clamped.toLocaleString('vi-VN')}đ`;
+    }
     const memo = walletMeta.transferContent || ('KITPHANCTV ' + (profile?.username || ''));
     $('kp-m-dep-memo').textContent = memo;
     $('kp-m-qr').src = `https://img.vietqr.io/image/MB-${encodeURIComponent(walletMeta.accountNumber)}-compact2.png?amount=${clamped}&addInfo=${encodeURIComponent(memo)}`;
