@@ -34,34 +34,43 @@ function baseUrlFromReq(req) {
   return `${proto}://${host}`;
 }
 
-async function sendActivationEmail({ to, username, fullname, activateUrl }) {
+async function sendActivationEmail({ to, username, fullname, activateUrl, baseUrl }) {
   const apiKey = String(process.env.RESEND_API_KEY || '').trim();
   if (!apiKey) return { sent: false, reason: 'RESEND_API_KEY_NOT_CONFIGURED' };
 
   const from = String(process.env.EMAIL_FROM || 'Locket KitPhan <onboarding@resend.dev>').trim();
-  const safeName = escapeHtml(fullname || username);
   const safeUser = escapeHtml(username);
   const safeUrl = escapeHtml(activateUrl);
+  const logoUrl = escapeHtml(`${baseUrl}/assets/img-locket/apple-touch-icon.png`);
 
   const html = `
-  <div style="background:#f4f4f5;padding:32px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#18181b;">
-    <div style="max-width:520px;margin:0 auto;background:#ffffff;border:1px solid #e4e4e7;border-radius:16px;padding:32px;">
-      <div style="font-size:18px;font-weight:800;margin-bottom:20px;color:#18181b;">👑 Locket KitPhan CTV</div>
-      <h1 style="font-size:22px;font-weight:800;margin:0 0 14px;color:#09090b;">Kích hoạt tài khoản CTV</h1>
-      <p style="font-size:15px;line-height:1.6;color:#3f3f46;margin:0 0 22px;">
-        Xin chào <b>${safeUser}</b> (${safeName}), bạn vừa được duyệt trở thành <b>Cộng tác viên Locket KitPhan</b>. Bấm nút bên dưới để đặt mật khẩu và kích hoạt tài khoản — chỉ mất một phút.
-      </p>
-      <a href="${safeUrl}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;padding:13px 24px;border-radius:10px;">
-        Đặt mật khẩu &amp; kích hoạt
-      </a>
-      <p style="font-size:13px;color:#71717a;margin:18px 0 22px;">Link có hiệu lực trong <b>7 ngày</b>.</p>
-      <div style="border-top:1px solid #e4e4e7;padding-top:16px;font-size:12px;color:#71717a;line-height:1.6;">
-        Nút không bấm được? Dán link này vào trình duyệt:<br>
-        <a href="${safeUrl}" style="color:#2563eb;word-break:break-all;">${safeUrl}</a>
+  <div style="background:#f8fafc;padding:36px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;">
+    <div style="max-width:520px;margin:0 auto;">
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
+        <tr>
+          <td style="padding-right:10px;vertical-align:middle;">
+            <img src="${logoUrl}" alt="Locket KitPhan" width="30" height="30" style="width:30px;height:30px;border-radius:8px;display:block;">
+          </td>
+          <td style="vertical-align:middle;font-size:17px;font-weight:800;color:#0f172a;">Locket KitPhan</td>
+        </tr>
+      </table>
+      <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:32px;">
+        <h1 style="font-size:21px;font-weight:800;margin:0 0 16px;color:#0f172a;">Kích hoạt tài khoản CTV</h1>
+        <p style="font-size:14px;line-height:1.65;color:#475569;margin:0 0 24px;">
+          Xin chào ${safeUser}, bạn vừa được mời trở thành <b style="color:#0f172a;">Cộng tác viên Locket KitPhan</b>. Bấm nút bên dưới để đặt mật khẩu và kích hoạt tài khoản — chỉ mất một phút.
+        </p>
+        <a href="${safeUrl}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;padding:13px 26px;border-radius:10px;">
+          Đặt mật khẩu &amp; kích hoạt
+        </a>
+        <p style="font-size:13px;color:#64748b;margin:20px 0 24px;">Link có hiệu lực trong <b style="color:#0f172a;">7 ngày</b>.</p>
+        <div style="border-top:1px solid #e2e8f0;padding-top:18px;font-size:12px;color:#64748b;line-height:1.6;">
+          Nút không bấm được? Dán link này vào trình duyệt:<br>
+          <a href="${safeUrl}" style="color:#2563eb;word-break:break-all;text-decoration:underline;">${safeUrl}</a>
+        </div>
       </div>
-    </div>
-    <div style="text-align:center;font-size:11px;color:#a1a1aa;margin-top:16px;">
-      Email tự động từ Locket KitPhan — vui lòng không trả lời.
+      <div style="text-align:center;font-size:12px;color:#94a3b8;margin-top:20px;">
+        Email tự động từ Locket KitPhan — vui lòng không trả lời.
+      </div>
     </div>
   </div>`;
 
@@ -299,12 +308,14 @@ module.exports = async function handler(req, res) {
         createdAt: now(),
       });
 
-      const activateUrl = `${baseUrlFromReq(req)}/ctv.html?activate=${rawToken}`;
+      const baseUrl = baseUrlFromReq(req);
+      const activateUrl = `${baseUrl}/ctv.html?activate=${rawToken}`;
       const mailRes = await sendActivationEmail({
         to: reqData.email,
         username: reqData.username,
         fullname: reqData.fullname,
         activateUrl,
+        baseUrl,
       });
 
       await reqRef.update({
