@@ -1,6 +1,7 @@
 'use strict';
 const crypto = require('node:crypto');
 const { firebase, jsonError, error } = require('../lib/shop-common');
+const { calculateDepositBonus } = require('../lib/deposit-bonus');
 
 async function readRawBody(req) {
   if (typeof req.rawBody === 'string' || Buffer.isBuffer(req.rawBody)) {
@@ -268,32 +269,46 @@ async function handler(req, res) {
       return res.status(200).json({ ok: true, duplicate: true, txId });
     }
 
+    const { bonusPercent, bonusVnd, creditedAmount } = calculateDepositBonus(amount);
+
     await db.ref(`live_deposits_v1/accounts/${uid}`).transaction((cur) => {
       const base = cur && typeof cur === 'object' ? cur : { uid, username, availableVnd: 0, heldVnd: 0, totalDepositedVnd: 0 };
       return {
         ...base,
         uid,
         username,
-        availableVnd: Number(base.availableVnd || 0) + amount,
+        availableVnd: Number(base.availableVnd || 0) + creditedAmount,
         totalDepositedVnd: Number(base.totalDepositedVnd || 0) + amount,
         updatedAt: Date.now(),
       };
     });
 
-    await db.ref(`users/${username}/balance`).transaction((cur) => Number(cur || 0) + amount);
+    await db.ref(`users/${username}/balance`).transaction((cur) => Number(cur || 0) + creditedAmount);
     await db.ref(`users/${username}/totalDeposited`).transaction((cur) => Number(cur || 0) + amount);
     await db.ref(`ctv_deposits/${uid}/${txId}`).set({
       id: txId,
       username,
       amount,
+      bonusPercent,
+      bonusVnd,
+      creditedAmount,
       gateway: 'MB Bank (SePay)',
       content: contentCombined.slice(0, 200),
       status: 'Thành công',
       createdAt: Date.now(),
     });
-    await logWebhookEvent(db, { status: 'credited', txId, username, amount, content: contentCombined.slice(0, 200) });
+    await logWebhookEvent(db, {
+      status: 'credited',
+      txId,
+      username,
+      amount,
+      bonusPercent,
+      bonusVnd,
+      creditedAmount,
+      content: contentCombined.slice(0, 200),
+    });
 
-    return res.status(200).json({ ok: true, credited: true, txId, username, amount });
+    return res.status(200).json({ ok: true, credited: true, txId, username, amount, bonusPercent, bonusVnd, creditedAmount });
   } catch (e) {
     return jsonError(res, e);
   }
