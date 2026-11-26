@@ -457,10 +457,15 @@
   });
 
   $('google-btn').addEventListener('click', async () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
     try {
-      await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+      await auth.signInWithPopup(provider);
       await loadPortal();
     } catch (err) {
+      if (err?.code === 'auth/popup-blocked' || err?.code === 'auth/operation-not-supported-in-this-environment') {
+        await auth.signInWithRedirect(provider);
+        return;
+      }
       toast(err.message || 'Đăng nhập Google chưa thành công.', 'error');
     }
   });
