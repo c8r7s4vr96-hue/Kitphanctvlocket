@@ -819,7 +819,10 @@
                 toast(`Đã duyệt & gửi email kích hoạt tới ${r.email}!`, 'success');
               } else {
                 await copyText(res.activateUrl || '');
-                toast(`Đã duyệt! Chưa cấu hình RESEND_API_KEY nên đã copy link kích hoạt để bạn gửi thủ công.`, 'info');
+                const reason = res.emailError === 'RESEND_API_KEY_NOT_CONFIGURED'
+                  ? 'Chưa nạp RESEND_API_KEY (hãy Redeploy Vercel sau khi thêm biến).'
+                  : `Lỗi gửi mail (${res.emailError || 'Resend'}).`;
+                toast(`Đã duyệt & copy link kích hoạt! ${reason}`, 'error');
               }
               void loadAdminRequests();
             } catch (err) {
