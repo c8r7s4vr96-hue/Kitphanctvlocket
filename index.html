@@ -138,6 +138,7 @@
       <form id="kp-m-login-form" style="display:none;flex-direction:column;gap:10px;">
         <input id="kp-m-login-id" class="kp-input" required placeholder="Username hoặc Email CTV">
         <input id="kp-m-login-pass" class="kp-input" type="password" required placeholder="Mật khẩu">
+        <button type="button" id="kp-m-forgot" style="background:none;border:0;color:#fbbf24;font-size:12px;font-weight:700;text-align:right;cursor:pointer;padding:0;">Quên / chưa đặt mật khẩu?</button>
         <button type="submit" class="kp-btn kp-btn-gold" style="min-height:42px;">Đăng nhập CTV</button>
         <button type="button" id="kp-m-google" class="kp-btn kp-btn-dark" style="min-height:40px;">Đăng nhập Admin (Google)</button>
       </form>
@@ -430,6 +431,7 @@
 
   $('kp-m-login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    $('kp-m-msg').style.color = '#fbbf24';
     $('kp-m-msg').textContent = 'Đang đăng nhập...';
     try {
       const id = $('kp-m-login-id').value.trim().toLowerCase(), pass = $('kp-m-login-pass').value;
@@ -440,7 +442,34 @@
       }
       await syncAccount();
       $('kp-ctv-modal').classList.remove('open');
-    } catch (err) { $('kp-m-msg').textContent = err.message; }
+    } catch (err) {
+      const code = String(err?.code || '');
+      let msg = err.message || 'Đăng nhập thất bại.';
+      if (code === 'auth/invalid-login-credentials' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
+        msg = 'Email/mật khẩu không đúng hoặc chưa đặt mật khẩu qua link kích hoạt. Hãy bấm "Quên / chưa đặt mật khẩu?".';
+      }
+      $('kp-m-msg').style.color = '#f87171';
+      $('kp-m-msg').textContent = msg;
+    }
+  });
+
+  $('kp-m-forgot').addEventListener('click', async () => {
+    const id = $('kp-m-login-id').value.trim().toLowerCase();
+    if (!id) {
+      $('kp-m-msg').style.color = '#f87171';
+      $('kp-m-msg').textContent = 'Nhập Username hoặc Email vào ô phía trên rồi bấm lại.';
+      return;
+    }
+    $('kp-m-msg').style.color = '#fbbf24';
+    $('kp-m-msg').textContent = 'Đang gửi link đặt lại mật khẩu...';
+    try {
+      const res = await api('/api/account', { action: 'forgot_password', identifier: id }, false);
+      $('kp-m-msg').style.color = '#34d399';
+      $('kp-m-msg').textContent = res.message || 'Đã gửi link đặt lại mật khẩu qua email!';
+    } catch (err) {
+      $('kp-m-msg').style.color = '#f87171';
+      $('kp-m-msg').textContent = err.message || 'Không thể gửi link đặt lại mật khẩu.';
+    }
   });
 
   $('kp-m-reg-form').addEventListener('submit', async (e) => {
