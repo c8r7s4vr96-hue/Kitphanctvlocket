@@ -72,7 +72,7 @@
         </div>
         <button type="submit" class="w-full py-3.5 rounded-xl gold-btn text-sm uppercase tracking-wider transition">Đăng nhập CTV</button>
         <button id="google-btn" type="button" class="w-full py-3 rounded-xl border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-xs font-bold text-white flex items-center justify-center gap-2 transition">
-          <i class="fa-brands fa-google text-amber-400"></i> Tiếp tục với Google
+          <i class="fa-brands fa-google text-amber-400"></i> Đăng nhập Admin (Google)
         </button>
       </form>
 
@@ -466,6 +466,7 @@
         await auth.signInWithRedirect(provider);
         return;
       }
+      await auth.signOut().catch(() => {});
       toast(err.message || 'Đăng nhập Google chưa thành công.', 'error');
     }
   });
@@ -925,6 +926,7 @@
     try {
       await loadPortal();
     } catch (err) {
+      await auth.signOut().catch(() => {});
       toast(err.message, 'error');
     }
   });
